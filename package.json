@@ -1,0 +1,20 @@
+{
+  "name": "mafia",
+  "version": "1.0.0",
+  "description": "Mafia-type game web client",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/garrett-is-a-swann/mafia.git"
+  },
+  "author": "Garrett Swann",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}
