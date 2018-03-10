@@ -3,7 +3,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 // Include Configs Here
-const config = require('./configs/appconf.json');
 
 // Include Routes Here
 const api = require('./routes/api');
