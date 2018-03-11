@@ -1,0 +1,28 @@
+<div class='container'>
+    <h3>Login</h3>
+    <form>
+        <div class='form-group'>
+            <label for='username'>Username</label>
+            <input #username='ngModel' [(ngModel)]='model.username' name='username'
+                type='text' class='form-control' id='username' required>
+            <br>{{username.className}}
+        </div>
+        <div [hidden]="username.valid || username.pristine" class="alert alert-danger">
+            {{ username_error }}
+        </div>
+
+        <div class='form-group'>
+            <label for='password'>Password</label>
+            <input #password='ngModel'[(ngModel)]='model.password' name='password'
+                type='text' class='form-control' id='password' required>
+            <br>{{password.className}}
+        </div>
+        <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
+            
+            {{ password_error }}
+        </div>
+
+        <button (click)='postForm(username.value, password.value)'  >Submit</button>
+    </form>
+
+</div>
