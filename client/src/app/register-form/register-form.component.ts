@@ -12,24 +12,26 @@ export class RegisterFormComponent implements OnInit {
     model: FormModel = new FormModel('','');
     error: FormModel = new FormModel('','');
     style: FormModel = new FormModel('required', 'required', '', '', '');
+    clock: any = {
+        username:  null
+    };
+
     constructor(private http: HttpClient) { }
 
     ngOnInit() {
     }
 
-    /*
-            <<< USERNAMES >>>
-            Empty - they haven't
-            Too long
-            ?Special Characters?
-            Required
+    resetClock(elem) {  // Keydown
+        if(this.clock[elem] != null) {
+            clearTimeout(this.clock[elem])
+        }
+    }
 
-            Taken
-            Hate Speech
-     */
-
-
-    validateUsername() {
+    validateUsername() {  // Keyup
+        if(this.clock.username != null){
+            clearTimeout(this.clock['username'])
+        }
+        this.clock['username'] = setTimeout(()=>{this.postValidateUsername()}, 1000)
         if(/^[a-zA-Z0-9._!@$~|-]{0,64}$/.exec(this.model.username) != null) {
             this.style.username = 'validating';
             this.error.username = ''
@@ -58,12 +60,15 @@ export class RegisterFormComponent implements OnInit {
             this.error.username='Error: Usernames must be 4-64 characters.'
             return
         }
-        this.http.post('/api/auth/validateUsername', {username:this.model.username})
+        this.http.post('/api/auth/validate-username', {username:this.model.username})
         .subscribe((data:any) => {
-            console.log(data)
             if(data.success) {
+                this.style.username = 'valid';
+                this.error.username = '';
             }
             else {
+                this.style.username = 'invalid';
+                this.error.username = data.message;
             }
         });
     }

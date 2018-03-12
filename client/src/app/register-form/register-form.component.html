@@ -6,6 +6,7 @@
             
             <input #username [(ngModel)]='model.username' name='username'
                 (keyup)='validateUsername()' [ngClass]='style.username'
+                (keydown)='resetClock("username")'
                 (keyup.tab)='postValidateUsername()' (blur)='postValidateUsername()'
                 type='text' class='form-control' id='username' required>
         </div>

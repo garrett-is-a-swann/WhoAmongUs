@@ -14,17 +14,22 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended:false}));
 
 
+
 router.use((req, res, next) => {
     console.log('Time: %s --- Connection from %s', Date('GMT'), req.headers['x-forwarded-for']);
     next();
 });
 
+router.use('/api', api);
 
 // Catch-all route
-router.get('*', (req, res) => {
+router.all('*', (req, res, next) => {
     console.log(req.body)
+    next()
+})
+.get((req,res) => {
     res.sendFile(__dirname, 'dist/index.html')
-});
+})
 
 // Directory imports
 router.use(express.static(path.join(__dirname, 'dist')));

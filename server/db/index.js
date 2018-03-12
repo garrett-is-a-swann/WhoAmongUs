@@ -1,24 +1,27 @@
 const { Pool } = require('pg');
 const config = require('../configs/dbconfig.json');
 
-const pool = new Pool(
+const pool = new Pool({
         user: config.user
-        hose: config.hose
-        database: config.database
-        password: config.password
-        port: config.port
-        );
+        ,hose: config.hose
+        ,database: config.database
+        ,password: config.password
+        ,port: config.port
+});
 
 module.exports = { 
     query: (text, params, callback) => {
         const start = Date.now();
         return pool.query(text, params, (err, res) => {
+            if(err) {
+                throw err
+            }
             const duration = Date.now() - start;
             console.log('Executed query', {text, duration, rows: res.rowCount });
             callback(err,res);
         });
     },
-    getClient: (callback) {
+    getClient: (callback) =>{
         pool.connect((err, client, done) => {
             client.query = () => {
                 client.lastQuery = arguments;

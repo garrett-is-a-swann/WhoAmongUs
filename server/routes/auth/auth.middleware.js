@@ -1,6 +1,16 @@
 const express = require('express')
 const router = express.Router();
 
+const config = require('../../config/sessionconfig.json');
+
+const session = require('client-sessions');
+router.use(session({
+    cookieName: 'WhoAmongUs'
+    ,secret: config.cookieKey
+    ,duration: 30 * 60 * 1000,
+    ,activeDuration: 5 * 60 * 1000
+}));
+
 const crypto = require('crypto');
 const hashconf = config.hash;
 
