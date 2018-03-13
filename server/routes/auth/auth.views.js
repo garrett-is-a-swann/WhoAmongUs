@@ -8,7 +8,7 @@ function checkUsername(username) {
         if(/^[a-zA-Z0-9._!@$~|-]{4,64}$/.exec(username) == null) {
             resolve({success:false, message:'Error: Improper format for username.'})
         }
-        return db.query('SELECT username FROM wau.userlogin WHERE username = $1', [username], (err, res) => {
+        return db.query('SELECT username FROM wau.user WHERE username = $1', [username], (err, res) => {
             if(err) {
                 reject(err);
                 return;
@@ -82,6 +82,19 @@ function checkForm(form) {
             return;
         }
         resolve({success:false, message:'Error: One or methods failed checks.', json:formCheck});
+    });
+}
+
+function createUserLogin(form) {
+    return new Promise(async (resolve, reject) => {
+    });
+}
+
+function createUser(form) {
+    return new Promise(async (resolve, reject) => {
+        if( (resp = await checkForm(form)).success) {
+
+        }
     });
 }
 
