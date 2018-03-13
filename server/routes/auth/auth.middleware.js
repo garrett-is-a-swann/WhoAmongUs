@@ -1,36 +1,35 @@
 const express = require('express')
 const router = express.Router();
 
-const config = require('../../config/sessionconfig.json');
+const config = require('../../configs/sessionconfig.json');
+
 
 const session = require('client-sessions');
 router.use(session({
     cookieName: 'WhoAmongUs'
     ,secret: config.cookieKey
-    ,duration: 30 * 60 * 1000,
+    ,duration: 30 * 60 * 1000
     ,activeDuration: 5 * 60 * 1000
 }));
 
 const crypto = require('crypto');
-const hashconf = config.hash;
+const hashconf = config.hashconf;
 
-function hashPass(password, callback) {
+function hashPass(password) {
     // generate a salt for pbkdf2
-    crypto.randomBytes(hashconf.saltBytes, (err, salt) => {
-        if (err) {
-            return callback(err);
-        }
-        console.log(salt);
-
-        crypto.pbkdf2(password, salt, hashconf.iterations, hashconf.hashBytes, 'sha512', (err, hash) => {
-
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(hashconf.saltBytes, (err, salt) => {
             if (err) {
-                return callback(err);
+                reject(err);
+                return;
             }
-
-            var combined = [hash, salt];
-
-            callback(null, combined);
+            crypto.pbkdf2(password, salt, hashconf.iterations, hashconf.hashBytes, 'sha512', (err, hash) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({hash:hash, salt:salt});
+            });
         });
     });
 }
@@ -47,4 +46,6 @@ function verifyPassword(password, combined, callback) {
     });
 }
 
-module.exports = router;
+module.exports = {router:router
+    ,hashPass:hashPass
+};

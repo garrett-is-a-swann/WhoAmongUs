@@ -36,10 +36,15 @@ router.route('/register')
 .get((req,res,next) => {
     next(new Error('Not implemented'));})
 .post(async (req,res,next) => {
-    if( (resp = await views.checkForm(req.body)).success )
-        res.json(resp);
-    else
-        res.json(resp)
+    try {
+        if( (resp = await views.createUser(req.body)).success )
+            res.json(resp);
+        else
+            res.json(resp)
+    } catch(e) {
+        console.log(e);
+        res.json({success:false, message:"Uh oh! We hit a snag. Our interweb guru's are taking a closer look!"});
+    }
 })
 .put((req,res,next) => {
     next(new Error('Not implemented'));

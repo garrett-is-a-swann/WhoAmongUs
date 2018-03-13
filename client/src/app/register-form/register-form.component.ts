@@ -151,17 +151,21 @@ export class RegisterFormComponent implements OnInit {
                 //Redirect Here
                 console.log(data)
                 console.log('Auth Success')
-                
+                this.error.username = 'Successfully registered!'
             }
-            else if(data.error_code == 0) { // This shouldn't happen? Invalid password layout.
-            }
-            else if(data.error_code == 1) { // Invalid Password
-                console.log('Error Code 1')
-
-            }
-            else if(data.error_code == 2) { // No valid User
-                console.log('Error Code 2')
-
+            else if (data.json) {
+                if(data.json.username && !data.json.username.success ) {
+                    this.error.username = data.json.username.message;
+                    this.style.username = 'invalid'
+                }
+                if(data.json.password && !data.json.password.success ) {
+                    this.error.password = data.json.password.message;
+                    this.style.password = 'invalid'
+                }
+                if(data.json.email && !data.json.email.success ) {
+                    this.error.email = data.json.email.message;
+                    this.style.email = 'invalid'
+                }
             }
         });
     }

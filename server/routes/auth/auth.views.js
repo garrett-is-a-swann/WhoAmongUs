@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router();
 
 const db = require('../../db')
+const auth_ = require('./auth.middleware')
 
 function checkUsername(username) {
     return new Promise((resolve, reject)=> {
@@ -85,15 +86,31 @@ function checkForm(form) {
     });
 }
 
-function createUserLogin(form) {
-    return new Promise(async (resolve, reject) => {
-    });
-}
-
 function createUser(form) {
     return new Promise(async (resolve, reject) => {
-        if( (resp = await checkForm(form)).success) {
+        try {
+            if( (resp = await checkForm(form)).success) {
+                var superSecretShhh = await auth_.hashPass(form.password)
+                var values = [form.username, superSecretShhh.salt.toString('hex'), superSecretShhh.hash.toString('hex'), form.first_name, form.last_name, form.email]
+                db.query('INSERT INTO wau.user '
+                        +'(username, salt, hash, first_name, last_name, email) '
+                        +'values ($1, $2, $3, $4, $5, $6) RETURNING *;',values, (err, res) => {
+                    if (err) {
+                        reject(err)
+                    }
+                    else {
+                        resolve({success:true, message:'User '+res.rows[0].username+' created!'});
+                    }
+                })
 
+            }
+            else {
+                console.log(resp)
+                resolve(resp);
+            }
+        }
+        catch (e) {
+            reject(e)
         }
     });
 }
@@ -101,5 +118,5 @@ function createUser(form) {
 module.exports = {
     checkUsername: checkUsername,
     checkEmail: checkEmail,
-    checkForm: checkForm
+    createUser: createUser
 }
