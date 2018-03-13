@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router();
 
-const auth = require('./auth/auth.views');
+const auth = require('./auth/auth.routes');
 
 router.use('/auth', auth);
 
-router.all('*', (req, res, next) => {
+router.route('*').all((req, res, next) => {
     console.log('Auth!!');
     next();
 });
