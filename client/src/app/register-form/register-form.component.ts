@@ -149,8 +149,6 @@ export class RegisterFormComponent implements OnInit {
         .subscribe((data:any) => {
             if(data.success) {
                 //Redirect Here
-                console.log(data)
-                console.log('Auth Success')
                 this.error.username = 'Successfully registered!'
             }
             else if (data.json) {
@@ -169,8 +167,6 @@ export class RegisterFormComponent implements OnInit {
             }
         });
     }
-
-
 }
 
 class FormModel {

@@ -10,11 +10,15 @@ const app = express();
 
 
 // Forward everything to mafia router
-app.use('/', mafia);
+app.use(mafia)
+app.all('*', (req, res, next) => {
+    console.log('Hi!!!!')
+    next();
+});
 
 const port = process.env.PORT || '3002';
 app.set('port', port);
-//app.set('trust proxy', 'loopback')
+app.set('trust proxy', '1.0.0.0')
 
 const server = http.createServer(app);
 

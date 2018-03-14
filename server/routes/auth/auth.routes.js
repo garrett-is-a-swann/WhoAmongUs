@@ -61,6 +61,7 @@ router.route('/login')
     next(new Error('Not implemented'));
 })
 .post((req,res,next) => {
+    res.json({success:false, msg:'Not yet implemented. Sorry LOL'});
 })
 .put((req,res,next) => {
     next(new Error('Not implemented'));

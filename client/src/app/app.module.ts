@@ -3,24 +3,34 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule }   from '@angular/forms';
 
+import { AppRouterModule } from './app-router/app-router.module';
+import { TopLevelRouteModule } from './top-level-route/top-level-route.module';
 
 import { AppComponent } from './app.component';
 import { LoginFormComponent } from './login-form/login-form.component';
 import { RegisterFormComponent } from './register-form/register-form.component';
+import { ForOhForComponent } from './for-oh-for/for-oh-for.component';
+import { HomeComponent } from './home/home.component';
+
 
 
 @NgModule({
     declarations: [
         AppComponent,
         LoginFormComponent,
-        RegisterFormComponent
+        RegisterFormComponent,
+        ForOhForComponent,
+        HomeComponent,
     ],
     imports: [
         BrowserModule,
         HttpClientModule,
-        FormsModule
+        FormsModule,
+        AppRouterModule,
+        TopLevelRouteModule 
     ],
-    providers: [],
+    providers: [
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

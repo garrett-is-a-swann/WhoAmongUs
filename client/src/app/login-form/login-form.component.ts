@@ -20,7 +20,7 @@ export class LoginFormComponent implements OnInit {
     }
 
     postForm(username:string, password:string) {
-        this.http.post('/api/login', {username:username,password:password})
+        this.http.post('/api/auth/login', {username:username,password:password})
             .subscribe((data:any) =>{
                 if(data.success) {
                     //Redirect Here
