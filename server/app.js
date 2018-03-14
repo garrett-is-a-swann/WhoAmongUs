@@ -23,7 +23,7 @@ router.use((req, res, next) => {
 router.use('/api', api);
 
 // Catch-all route
-router.route('*')
+router.route('/')
 .all((req, res, next) => {
     console.log(req.body)
     next()

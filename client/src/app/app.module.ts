@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule }   from '@angular/forms';
 
+import { AppRouterModule } from './app-router/app-router.module';
 
 import { AppComponent } from './app.component';
 import { LoginFormComponent } from './login-form/login-form.component';
@@ -13,12 +14,13 @@ import { RegisterFormComponent } from './register-form/register-form.component';
     declarations: [
         AppComponent,
         LoginFormComponent,
-        RegisterFormComponent
+        RegisterFormComponent,
     ],
     imports: [
         BrowserModule,
         HttpClientModule,
-        FormsModule
+        FormsModule,
+        AppRouterModule
     ],
     providers: [],
     bootstrap: [AppComponent]
