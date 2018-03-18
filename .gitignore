@@ -19,6 +19,7 @@
 *.sublime-workspace
 *.swp
 *.swo
+*.vim
 
 # IDE - VSCode
 .vscode/*
