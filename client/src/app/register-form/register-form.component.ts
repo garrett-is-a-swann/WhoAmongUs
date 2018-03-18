@@ -53,7 +53,7 @@ export class RegisterFormComponent implements OnInit {
             }
         }
         if(elem == 'password') {
-            if(/[!-~]{8,64}/.exec(this.model.username) != null) {
+            if(/[!-~]{8,64}/.exec(this.model.password) != null) {
                 this.style.password = 'validating';
                 this.error.password = '';
             }

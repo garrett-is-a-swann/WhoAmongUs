@@ -1,76 +1,33 @@
 const express = require('express')
 const router = express.Router();
 
+const config = require('../../configs/sessionconfig.json');
+const hashconf = config.hashconf;
+const crypto = require('crypto');
+
 const db = require('../../db')
-const auth_ = require('./auth.middleware')
 
-function checkUsername(username) {
-    return new Promise((resolve, reject)=> {
-        if(/^[a-zA-Z0-9._!@$~|-]{4,64}$/.exec(username) == null) {
-            resolve({success:false, message:'Error: Improper format for username.'})
-        }
-        return db.query('SELECT username FROM wau.user WHERE username = $1', [username], (err, res) => {
-            if(err) {
+// "Private"
+function hashPass(password) {
+    // generate a salt for pbkdf2
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(hashconf.saltBytes, (err, salt) => {
+            if (err) {
                 reject(err);
                 return;
             }
-            if(res.rowCount) {
-                const resp = {success: false, message:res.rows[0].username+' has been taken.'}
-                resolve(resp)
-            }
-            else {
-                const resp = {success: true, message:username+' is available.'}
-                resolve(resp);
-            }
-        })
-    })
-
-}
-
-function checkPassword(password) {
-    return new Promise((resolve, reject) => {
-        if(/[!-~]{8,64}/.exec(password) == null) {
-            resolve({success:false, message:'Error: Improper format for password.'});
-            return;
-        }
-        if( /(?=.*[a-z])/.exec(password) == null
-            || /(?=.*[A-Z])/.exec(password) == null
-            || /(?=.*[!-@[-`{-~])/.exec(password) == null)
-        {
-            resolve({success:false, message:'Error: Improper format for password.'});
-            return;
-        }
-        resolve({success:true, message:'Valid password.'});
-    });
-}
-
-function checkEmail(email) {
-    return new Promise((resolve, reject) => {
-        if( email == undefined || email.length == 0 ) {
-            resolve({success: true, message: 'Email is optional'});
-            return;
-        }
-        if(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.exec(email) == null) {
-            resolve({success:false, message:'Error: Improper format for email.'});
-        }
-        return db.query('SELECT email FROM wau.user WHERE email = $1;', [email], (err, res) => {
-            if(err) {
-                reject(err);
-                return;
-            }
-            if(res.rowCount) {
-                resolve({success: false, message:res.rows[0].email+' has been taken.'});
-                return;
-            }
-            else {
-                resolve({success: true, message:email+' is available.'});
-                return;
-            }
+            crypto.pbkdf2(password, salt, hashconf.iterations, hashconf.hashBytes, 'sha512', (err, hash) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({hash:hash, salt:salt});
+            });
         });
     });
 }
 
-function checkForm(form) {
+function checkRegisterForm(form) {
     return new Promise(async (resolve, reject) => {
         var formCheck = {
             username:await checkUsername(form.username)
@@ -79,18 +36,87 @@ function checkForm(form) {
         }
         console.log(formCheck.username.success , formCheck.password.success , formCheck.email.success);
         if( formCheck.username.success && formCheck.password.success && formCheck.email.success ) {
-            resolve({success:true, message:'All methods passed checks'})
+            resolve({success:true, mode: 1, message:'All methods passed checks'})
             return;
         }
-        resolve({success:false, message:'Error: One or methods failed checks.', json:formCheck});
+        resolve({success:false, mode: 0, message:'One or methods failed checks.', json:formCheck});
+    });
+}
+
+
+// Public
+
+function checkUsername(username) {
+    return new Promise((resolve, reject)=> {
+        if(/^[a-zA-Z0-9._!@$~|-]{4,64}$/.exec(username) == null) {
+            resolve({success:false, mode: -1, message:'Error: Improper format for username.'})
+        }
+        return db.query('SELECT username FROM wau.user WHERE username = $1', [username], (err, res) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+            if(res.rowCount) {
+                const resp = {success: false, mode: 1, message:res.rows[0].username+' is already in use.'}
+                resolve(resp)
+            }
+            else {
+                const resp = {success: true, mode: 0, message:username+' is available.'}
+                resolve(resp);
+            }
+        })
+    })
+}
+
+function checkPassword(password) {
+    return new Promise((resolve, reject) => {
+        if(/[!-~]{8,64}/.exec(password) == null) {
+            resolve({success:false, mode:-1, message:'Error: Improper format for password.'});
+            return;
+        }
+        if( /(?=.*[a-z])/.exec(password) == null
+            || /(?=.*[A-Z])/.exec(password) == null
+            || /(?=.*[!-@[-`{-~])/.exec(password) == null)
+        {
+            resolve({success:false, mode: -1, message:'Error: Improper format for password.'});
+            return;
+        }
+        resolve({success:true, mode:1, message:'Valid password.'});
+    });
+}
+
+
+function checkEmail(email) {
+    return new Promise((resolve, reject) => {
+        if( email == undefined || email.length == 0 ) {
+            resolve({success: true, mode: 0, message: 'Email is optional'});
+            return;
+        }
+        if(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.exec(email) == null) {
+            resolve({success:false, mode: -1, message:'Error: Improper format for email.'});
+        }
+        return db.query('SELECT email FROM wau.user WHERE email = $1;', [email], (err, res) => {
+            if(err) {
+                reject(err);
+                return;
+            }
+            if(res.rowCount) {
+                resolve({success: false, mode: 0, message:res.rows[0].email+' is already in use.'});
+                return;
+            }
+            else {
+                resolve({success: true, mode: 1, message:email+' is available.'});
+                return;
+            }
+        });
     });
 }
 
 function createUser(form) {
     return new Promise(async (resolve, reject) => {
         try {
-            if( (resp = await checkForm(form)).success) {
-                var superSecretShhh = await auth_.hashPass(form.password)
+            if( (resp = await checkRegisterForm(form)).success) {
+                var superSecretShhh = await hashPass(form.password)
                 var values = [form.username, superSecretShhh.salt.toString('hex'), superSecretShhh.hash.toString('hex'), form.first_name, form.last_name, form.email]
                 db.query('INSERT INTO wau.user '
                         +'(username, salt, hash, first_name, last_name, email) '
@@ -99,24 +125,44 @@ function createUser(form) {
                         reject(err)
                     }
                     else {
-                        resolve({success:true, message:'User '+res.rows[0].username+' created!'});
-                    }
-                })
-
-            }
-            else {
-                console.log(resp)
+                        resolve({success:true, mode: 1, message:'User '+res.rows[0].username+' created!'});
+                }})
+            } else {
                 resolve(resp);
             }
+        } catch (e) {
+            reject(e)
         }
-        catch (e) {
+    });
+}
+
+function getUserHash(username) {
+    return new Promise((resolve, reject) => {
+        try {
+            db.query('SELECT hash, salt '
+                    +'FROM wau.user '
+                    +'WHERE username = $1;', [username], (err, res) => {
+                if(err) {
+                    console.log(err)
+                    reject(err)
+                }
+                else {
+                    console.log({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
+                    resolve({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
+                }
+            });
+        } catch (e) {
+            console.log(e)
             reject(e)
         }
     });
 }
 
 module.exports = {
-    checkUsername: checkUsername,
-    checkEmail: checkEmail,
-    createUser: createUser
+    checkUsername: checkUsername
+    ,checkPassword:checkPassword
+    ,checkEmail: checkEmail
+    ,createUser: createUser
+    ,getUserHash: getUserHash
+
 }

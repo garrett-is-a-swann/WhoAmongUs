@@ -12,7 +12,6 @@ export class AuthService {
     redirectUrl: string = '';
 
     login(): Observable<boolean> {
-        console.log('HELASDFL')
         return Observable.of(true).delay(1000).do(val => this.isLoggedin = true);
     }
     logout(): void {

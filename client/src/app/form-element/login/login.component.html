@@ -1,0 +1,10 @@
+<div class='form-group'>
+    <label for='username'>Username</label>
+    <input #username='ngModel' [(ngModel)]='model.username' name='username'
+    type='text' class='form-control' id='username' required>
+    <br>{{username.className}}
+</div>
+<div [hidden]="username.valid || username.pristine" class="alert alert-danger">
+    {{ username_error }}
+</div>
+

@@ -10,13 +10,59 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LoginFormComponent implements OnInit {
 
-    username_error:string='Username required.'
-    password_error:string='Password required.'
     model: FormModel = new FormModel('','');
+    error: FormModel = new FormModel('','');
+    style: FormModel = new FormModel('required', 'required');
+    clock: any = {
+        username:  null
+    }
+
+    resetClock(elem) {  // Keydown
+        if(this.clock[elem] != null) {
+            clearTimeout(this.clock[elem])
+        }
+    }
+
+    validate(elem) {  // Keyup
+        if(this.clock[elem] != null){
+            clearTimeout(this.clock[elem])
+        }
+        this.clock[elem] = setTimeout(()=>{
+            this.postValidate(elem)}, 1000)
+
+        if(elem == 'username') {
+            if(/^[a-zA-Z0-9._!@$~|-]{0,64}$/.exec(this.model.username) != null) {
+                this.style.username = 'validating';
+                this.error.username = ''
+            }
+            else if(/[^a-zA-Z0-9._!@$~|-]/.exec(this.model.username) != null) {
+                this.style.username = 'invalid';
+                this.error.username = 'Error: Cannot use characters: [ '
+                    + (this.model.username.match(/[^a-zA-Z0-9._!@$~|-]/g)
+                    .filter((value, index, self) => {
+                        return self.indexOf(value) === index;
+                    })+'').replace(/([^a-zA-Z0-9._!@$~|-],)/g,(match, offset, str) => {return match[0]})+' ]'
+            }
+            else {
+                this.style.username = 'invalid';
+                this.error.username = 'Error: Usernames must be 4-64 characters.'
+            }
+        }
+        if(elem == 'password') {
+            if(/[!-~]{8,64}/.exec(this.model.password) != null) {
+                this.style.password = 'validating';
+                this.error.password = '';
+            }
+        }
+    };
+
 
     constructor(private http: HttpClient) { }
 
     ngOnInit() {
+    }
+
+    postValidate(elem) {
     }
 
     postForm(username:string, password:string) {
