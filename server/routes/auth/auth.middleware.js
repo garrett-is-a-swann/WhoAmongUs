@@ -29,7 +29,9 @@ function verifyPassword(password, hash, salt) {
 function authUser(username, password) {
     return new Promise(async (resolve, reject) => {
         try {
-            const username_check = await views.checkUsername(username)
+            console.log(username)
+            const username_check = await views.checkUsername(username);
+            console.log('hello+!!!!', username_check)
             if(username_check.mode == 0) {
                 reject({success:false, mode: 0, message:'Username is not in use.'});
                 return;

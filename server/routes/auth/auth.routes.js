@@ -57,7 +57,6 @@ router.route('/login')
 .all((req, res, next) => {
     next();
 }).post( async (req,res,next) => {
-    console.log('asdf')
     auth_.authUser(req.body.username, req.body.password).then(resp => {
         console.log(resp);
         if(resp == true) {

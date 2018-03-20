@@ -57,7 +57,7 @@ function checkUsername(username) {
                 return;
             }
             if(res.rowCount) {
-                const resp = {success: false, mode: 1, message:res.rows[0].username+' is already in use.'}
+                const resp = {success: true, mode: 1, message:res.rows[0].username+' is in use.'}
                 resolve(resp)
             }
             else {
@@ -101,7 +101,7 @@ function checkEmail(email) {
                 return;
             }
             if(res.rowCount) {
-                resolve({success: false, mode: 0, message:res.rows[0].email+' is already in use.'});
+                resolve({success: false, mode: 0, message:res.rows[0].email+' is in use.'});
                 return;
             }
             else {

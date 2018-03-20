@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ClockService } from '../clock.service';
 import { HttpClient } from '@angular/common/http';
 
@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
     styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+    @Input('formtype') logintype: string;
     model: string = '';
     error: string = '';
     style: string = 'required';
@@ -65,8 +66,26 @@ export class LoginComponent implements OnInit {
             {username:this.model})
             .subscribe((data:any) => {
                 if(data.success) {
-                    this.style = 'valid';
-                    this.error = '';
+                    if(this.logintype == 'register') {
+                        if(data.mode == 0 ){
+                            this.style = 'valid';
+                            this.error = '';
+                        }
+                        else {
+                            this.style = 'invalid';
+                            this.error = data.message;
+                        }
+                    }
+                    if(this.logintype == 'login') {
+                        if(data.mode == 1 ){
+                            this.style = 'valid';
+                            this.error = '';
+                        }
+                        else {
+                            this.style = 'invalid';
+                            this.error = 'Username not registered';
+                        }
+                    }
                 }
                 else {
                     this.style = 'invalid';

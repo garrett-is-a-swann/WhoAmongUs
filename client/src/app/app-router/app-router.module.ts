@@ -14,8 +14,9 @@ import { AuthService } from '../auth.service';
 const routes: Routes = [
     {   path: ''
         ,component: HomeComponent 
-        //,canActivate: [AuthGuardService]
         ,children: [
+            { path: 'login', component: LoginFormComponent },
+            { path: 'register',  component: RegisterFormComponent },
             {
                 path: ''
                 ,canActivateChild: [AuthGuardService]
@@ -24,8 +25,6 @@ const routes: Routes = [
             }
         ],
     },
-    { path: 'login', component: LoginFormComponent },
-    { path: 'register',  component: RegisterFormComponent },
     { path: '**', component: ForOhForComponent },
 ];
 

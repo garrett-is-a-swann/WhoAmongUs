@@ -2,67 +2,24 @@
     <h3>Register</h3>
     <form>
         <div class='form-group'>
-            <label for='username'>Username</label>
-            
-            <input #username [(ngModel)]='model.username' name='username'
-                (keyup)='validate("username")' [ngClass]='style.username'
-                (keydown)='resetClock("username")'
-                (keyup.tab)='postValidate("username")' 
-                (blur)='postValidate("username")'
-                type='text' class='form-control' id='username' placeholder='Required' required>
-            <label for='username' [hidden]="error.username == ''">
-                {{ error.username }}
-            </label>
-
+            <app-login [formtype]='"register"' #username></app-login>
             <br>
-            <label for='password'>Password</label>
-            <input #password [(ngModel)]='model.password' name='password'
-                (keyup)='validate("password")' [ngClass]='style.password'
-                (keydown)='resetClock("password")'
-                (keyup.tab)='postValidate("password")' 
-                (blur)='postValidate("password")'
-                type='password' class='form-control' id='password' placeholder='Required' required>
-            <label for='password' [hidden]="error.password == ''">
-                {{ error.password }}
-            </label>
-
+            <app-password #password></app-password>
             <br>
-            <label for='email'>Email</label>
-            <input #email [(ngModel)]='model.email' name='email'
-                (keyup)='validate("email")' [ngClass]='style.email'
-                (keydown)='resetClock("email")'
-                (keyup.tab)='postValidate("email")' 
-                (blur)='postValidate("email")'
-                type='text' class='form-control' id='email'>
-            <label for='email' [hidden]="error.email == ''">
-                {{ error.email }}
-            </label>
-
+            <app-email #email></app-email>
             <br>
-            <label for='firstname'>First Name</label>
-            <input #firstname [(ngModel)]='model.firstname' name='firstname'
-                (keyup)='validate("firstname")' [ngClass]='style.firstname'
-                (keydown)='resetClock("firstname")'
-                (keyup.tab)='postValidate("firstname")' 
-                (blur)='postValidate("firstname")'
+            <input [(ngModel)]='firstname' name='firstname'
                 type='text' class='form-control' id='firstname'>
-            <label for='firstname' [hidden]="error.firstname == ''">
-                {{ error.firstname }}
-            </label>
-
             <br>
-            <label for='lastname'>Last Name</label>
-            <input #lastname [(ngModel)]='model.lastname' name='lastname'
-                (keyup)='validate("lastname")' [ngClass]='style.lastname'
-                (keydown)='resetClock("lastname")'
-                (keyup.tab)='postValidate("lastname")' 
-                (blur)='postValidate("lastname")'
+            <input [(ngModel)]='lastname' name='lastname'
                 type='text' class='form-control' id='lastname'>
-            <label for='lastname' [hidden]="error.lastname == ''">
-                {{ error.lastname }}
-            </label>
         </div>
-        <button (click)='postForm()'  >Submit</button>
+        <button name='submit' (click)='postForm(username.model
+                            ,password.model
+                            ,email.model)'>Submit</button>
+        <label for='submit' [hidden]="response == ''">
+            {{ response }}
+        </label>
     </form>
 
 </div>
