@@ -1,10 +1,9 @@
-<div class='form-group'>
-    <label for='username'>Username</label>
-    <input #username='ngModel' [(ngModel)]='model.username' name='username'
-    type='text' class='form-control' id='username' required>
-    <br>{{username.className}}
-</div>
-<div [hidden]="username.valid || username.pristine" class="alert alert-danger">
-    {{ username_error }}
-</div>
-
+<input #username [(ngModel)]='model' name='username'
+    (keyup)='validate()' [ngClass]='style'
+    (keydown)='keydown()'
+    (keyup.tab)='postValidate()' 
+    (blur)='postValidate()'
+    type='text' class='form-control' id='username' placeholder='Username (Required)' required>
+<label for='username' [hidden]="error == ''">
+    {{ error }}
+</label>

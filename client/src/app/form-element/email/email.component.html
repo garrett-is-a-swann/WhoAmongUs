@@ -1,3 +1,9 @@
-<p>
-  email works!
-</p>
+<input #email [(ngModel)]='model' name='email'
+    (keyup)='validate()' [ngClass]='style'
+    (keydown)='validate()'
+    (keyup.tab)='postValidate()' 
+    (blur)='postValidate()'
+    type='text' class='form-control' id='email' placeholder='Email' required>
+<label for='email' [hidden]="error == ''">
+    {{ error }}
+</label>

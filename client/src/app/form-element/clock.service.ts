@@ -12,17 +12,16 @@ export class ClockService {
         this.func = lambda;
     }
 
-    reset() {
+    stop() {
         if(this.clock != null) {
             clearTimeout(this.clock)
         }
     }
-    keyup() {
-        this.reset()
+    restart() {
+        this.stop()
         this.clock = setTimeout(()=>{
             this.func()}, 1000)
     }
-
 }
 
 
