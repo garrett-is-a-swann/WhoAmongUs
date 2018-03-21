@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login-form',
@@ -10,15 +12,22 @@ import { HttpClient } from '@angular/common/http';
 export class LoginFormComponent implements OnInit {
     response: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private auth: AuthService, private router: Router) { }
 
     ngOnInit() {
+        this.redirect()
+    }
+
+    async redirect() {
+        if( await this.auth.isAuthenticated() ){
+            this.router.navigate(['']);
+        }
     }
 
     postForm(username:string, password:string) {
         this.response = 'Authenticating...';
-        this.http.post('/api/auth/login', {username:username,password:password})
-            .subscribe((data:any) =>{
+        this.auth.login(username, password)
+            .then((data:any) =>{
                 if(data.success) {
                     //Redirect Here
                     this.response = 'Authentication successful.';
@@ -26,6 +35,7 @@ export class LoginFormComponent implements OnInit {
                 else {
                     this.response = data.message;
                 }
+                this.redirect()
             });
     }
 

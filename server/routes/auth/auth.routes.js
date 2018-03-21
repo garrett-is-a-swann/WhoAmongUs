@@ -42,12 +42,13 @@ router.route('/register')
     next(new Error('Not implemented'));})
 .post(async (req,res,next) => {
     try {
-        if( (resp = await views.createUser(req.body)).success )
+        if( (resp = await views.createUser(req.body)).success ) {
+            req.WhoAmongUs.username = req.body.username;
             res.json(resp);
+        }
         else
             res.json(resp)
     } catch(e) {
-        console.log(e);
         res.json({success:false, message:"Uh oh! We hit a snag. Our interweb guru's are taking a closer look!"});
     }
 })
@@ -58,9 +59,8 @@ router.route('/login')
     next();
 }).post( async (req,res,next) => {
     auth_.authUser(req.body.username, req.body.password).then(resp => {
-        console.log(resp);
         if(resp == true) {
-            req.WhoAmongUs.username = true;
+            req.WhoAmongUs.username = req.body.username;
         }
         res.send({success:true, mode:1, message:'Authentication successful.'})
     }).catch(err => {
@@ -69,11 +69,22 @@ router.route('/login')
     });
 })
 
+router.route('/is-auth')
+.all((req, res, next) => {
+    next();
+}).get((req,res,next) => {
+    if(req.WhoAmongUs && req.WhoAmongUs.username) {
+        console.log(req.WhoAmongUs.username, 'is checking their authorization.');
+        res.send({success:true, message:'Authentication successful.'})
+    } else {
+        res.send({success:false, message:'Not authenticated.'});
+    }
+})
 
 router.route('/logout')
 .all((req, res, next) => {
     next();
-}).post((req, res) => {
+}).get((req, res) => {
     req.WhoAmongUs.reset();
     res.json({success: true, message:'Logout successful'});
 });

@@ -9,12 +9,15 @@
             <app-email #email></app-email>
             <br>
             <input [(ngModel)]='firstname' name='firstname'
+                placeholder='First Name'
                 type='text' class='form-control' id='firstname'>
             <br>
             <input [(ngModel)]='lastname' name='lastname'
+                placeholder='Last Name'
                 type='text' class='form-control' id='lastname'>
         </div>
-        <button name='submit' (click)='postForm(username.model
+        <button name='submit'
+            (click)='postForm(username.model
                             ,password.model
                             ,email.model)'>Submit</button>
         <label for='submit' [hidden]="response == ''">

@@ -1,8 +1,9 @@
 <h1>This page is under construction</h1>
 <nav>
     <a routerLink="" routerLinkActive="active">Home</a>
-    <a routerLink="/login" routerLinkActive="active">Login</a>
-    <a routerLink="/register" routerLinkActive="active">Register</a>
+    <a *ngIf='authenticated' (click)='auth.logout()' routerLinkActive="active">Logout</a>
+    <a *ngIf='!authenticated' routerLink="/login" routerLinkActive="active">Login</a>
+    <a *ngIf='!authenticated' routerLink="/register" routerLinkActive="active">Register</a>
 </nav>
 <router-outlet></router-outlet>
 <img src='https://a57.foxnews.com/images.foxnews.com/content/fox-news/lifestyle/2017/11/09/how-to-keep-cat-from-scratching-your-sofa-to-shreds/_jcr_content/par/featured_image/media-0.img.jpg/931/524/1510172827500.jpg?ve=1&tl=1'>

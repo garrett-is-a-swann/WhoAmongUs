@@ -34,7 +34,6 @@ function checkRegisterForm(form) {
             ,password:await checkPassword(form.password)
             ,email:await checkEmail(form.email)
         }
-        console.log(formCheck.username.success , formCheck.password.success , formCheck.email.success);
         if( formCheck.username.success && formCheck.password.success && formCheck.email.success ) {
             resolve({success:true, mode: 1, message:'All methods passed checks'})
             return;
@@ -143,16 +142,13 @@ function getUserHash(username) {
                     +'FROM wau.user '
                     +'WHERE username = $1;', [username], (err, res) => {
                 if(err) {
-                    console.log(err)
                     reject(err)
                 }
                 else {
-                    console.log({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
                     resolve({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
                 }
             });
         } catch (e) {
-            console.log(e)
             reject(e)
         }
     });
