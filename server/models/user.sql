@@ -5,7 +5,7 @@ CREATE TABLE wau.user
     ,username varchar(64) UNIQUE NOT NULL
     ,salt varchar(64) NOT NULL
     ,hash varchar(256) NOT NULL
-    ,first_name TEX:
+    ,first_name TEXT:
     ,last_name TEXT
     ,email varchar(325)
     ,email_validated boolean NOT NULL default FALSE
