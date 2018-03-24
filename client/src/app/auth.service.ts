@@ -7,13 +7,13 @@ import { Observable } from 'rxjs/Observable';
 export class AuthService {
     private isLoggedin:boolean = false;
     private reload:boolean = true;
+    private auth_user:string = 'NULL';
 
     state_change : EventEmitter<boolean> = new EventEmitter();
 
     redirectUrl: string = '';
     
     constructor(private http: HttpClient) {
-        this.isAuthenticated()
     }
 
     checkAuthenticated() {
@@ -26,11 +26,16 @@ export class AuthService {
                     this.reload=false;
                     if(data.success) {
                         this.isLoggedin = true;
+                        this.auth_user = data.username;
+
+                        // Handle event last
                         this.state_change.emit(this.isLoggedin);
                         resolve(true);
                     }
                     else {
                         this.isLoggedin = false;
+
+                        // Handle event last
                         this.state_change.emit(this.isLoggedin);
                         resolve(false);
                     }
@@ -44,13 +49,19 @@ export class AuthService {
                 .subscribe((data:any) =>{
                     if(data.success) {
                         this.isLoggedin = true;
+                        this.auth_user = username;
+
+                        // Handle event last
                         this.state_change.emit(this.isLoggedin);
                         resolve({success:true, message: 'Authentication successful.'});
                     }
                     else {
                         this.isLoggedin = false;
+                        this.auth_user = '';
+
+                        // Handle event last
                         this.state_change.emit(this.isLoggedin);
-                        resolve({success:false, message: data.message});
+                        resolve({success:false, mode: data.mode, message: data.message});
                     }
                 });
         })
@@ -64,12 +75,17 @@ export class AuthService {
                 .subscribe((data:any) => {
                     if(data.success) {
                         this.isLoggedin = false;
+                        this.auth_user = '';
+
+                        // Handle event last
                         this.state_change.emit(this.isLoggedin);
                         resolve({success:true, message: 'Logout successful.'});
                     }
                     else {
                         this.isLoggedin = false;
                         this.state_change.emit(this.isLoggedin);
+
+                        // Maybe insert a Snackbar error here.
                         resolve({success:false, message: "There's a broken pipe somewhere."})
                     }
                 });
@@ -85,6 +101,12 @@ export class AuthService {
                 resolve(this.isLoggedin);
             }
         })
+    }
+
+    whoAuthenticated() {
+        return new Promise((resolve, reject) => {
+            resolve(this.auth_user);
+        });
     }
 
     stateChangeEmitter() {

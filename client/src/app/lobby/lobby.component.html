@@ -1,0 +1,69 @@
+<div *ngIf='!authenticated'>
+    <p>Please log in to continue.</p>
+</div>
+<div *ngIf='authenticated'>
+    <div class='columns is-gapless is-multiline is-mobile'>
+
+        <div [ngClass]='{"is-active":tab==0}' class='column is-one-third button-boy fancy'
+            (click)='tab=0;'
+            >
+            <p>Join Session</p>
+        </div>
+
+        <div [ngClass]='{"is-active":tab==1}' class='column is-one-third button-boy fancy'
+            (click)='tab=1;'
+            >
+            <p>Create Session</p>
+        </div>
+
+        <div [ngClass]='{"is-active":tab==2}' class='column is-one-third button-boy fancy'
+            (click)='tab=2;'
+            >
+            <p>Your Sessions</p>
+        </div>
+
+        <div class='column is-three-fifths'
+            id='col-title'>
+            <p class='fancy title-title-boy'>
+                Session
+            </p>
+        </div>
+
+        <div class='column'
+            id='col-host'>
+            <p class='col-host fancy title-title-boy'>
+                Host
+            </p>
+        </div>
+
+        <div class='column'
+            id='col-host'>
+            <p class='col-host fancy title-title-boy'>
+                Players
+            </p>
+        </div>
+
+        <div *ngFor='let i of rooms' class='column is-12 lobby-room-container'>
+            <div class='columns is-mobile is-gapless fancy'>
+                <div class='column col-title is-three-fifths'
+                    id='col-title'>
+                    <p class=' title-boy'>
+                        {{i.title}}
+                    </p>
+                </div>
+                <div class='column is-one-fifths'
+                    id='col-host'>
+                    <p class='col-host title-boy'>
+                        {{i.host}}
+                    </p>
+                </div>
+                <div class='column is-one-fifths'>
+                    <p class='title-boy'>
+                    {{i.players}} / {{i.cap}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,9 +1,7 @@
-.ng-pristine[required], .ng-dirty.required {
-    border-left:5px solid #ef9b25
+.container {
+    text-align:center;
 }
-.ng-valid[required], .ng-valid.required {
-    border-left:5px solid #42A948
-}
-.ng-invalid:not(form) {
-    border-left:5px solid #a94442
+
+.form-control {
+    width:100%;
 }

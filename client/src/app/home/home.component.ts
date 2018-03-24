@@ -7,14 +7,19 @@ import { AuthService } from '../auth.service';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-    authenticated:any = false;
+    private authenticated:any = false;
+    username:any = '';
 
     constructor(private auth: AuthService) { }
 
-    ngOnInit() {
-        this.auth.stateChangeEmitter().subscribe(state =>{
-            this.authenticated = state;
+    async ngOnInit() {
+        this.auth.stateChangeEmitter().subscribe(async (auth, username) =>{
+            this.authenticated = auth;
+            this.username = await this.auth.whoAuthenticated()
         })
+        this.authenticated = await this.auth.isAuthenticated()
+        this.username = await this.auth.whoAuthenticated()
     }
+
 
 }

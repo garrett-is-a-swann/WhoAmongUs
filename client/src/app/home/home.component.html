@@ -1,9 +1,37 @@
-<h1>This page is under construction</h1>
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+               Who Among Us 
+            </h1>
+            <h2 class="subtitle">
+               A bluffing game platform under active development.
+            </h2>
+        </div>
+    </div>
+</section>
+
 <nav>
-    <a routerLink="" routerLinkActive="active">Home</a>
-    <a *ngIf='authenticated' (click)='auth.logout()' routerLinkActive="active">Logout</a>
-    <a *ngIf='!authenticated' routerLink="/login" routerLinkActive="active">Login</a>
-    <a *ngIf='!authenticated' routerLink="/register" routerLinkActive="active">Register</a>
+    <div class='level fancy' style='background:hsl(0,0%,21%);'>
+        <div class='level-left'>
+            <a class='level-item' href='https://www.whoamong.us'>
+                <img src='http://www.mythirtyspot.com/wp-content/uploads/2014/09/Screen-Shot-2014-09-18-at-10.19.29-PM-1024x712.png' alt='Cute cat as temporary logo.' width='112' height='28' style='height:52px'>
+            </a>
+            <a class='level-item button-boy' routerLink="" routerLinkActive="active">Home</a>
+        </div>
+        <div class='level-right'>
+            <a class='level-item button-boy' *ngIf='!authenticated' routerLink="/login" routerLinkActive="active">Login</a>
+            <a class='level-item button-boy' *ngIf='authenticated' routerLinkActive='active'>{{username}}</a>
+            <a class='level-item button-boy' *ngIf='!authenticated' routerLink="/register" routerLinkActive="active">Register</a>
+            <a class='level-item button-boy' *ngIf='authenticated' (click)='auth.logout()' routerLinkActive="active">Logout</a>
+        </div>
+    </div>
 </nav>
-<router-outlet></router-outlet>
+<div class='columns'>
+    <div class='column'>
+        <div class='card'>
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
 <img src='https://a57.foxnews.com/images.foxnews.com/content/fox-news/lifestyle/2017/11/09/how-to-keep-cat-from-scratching-your-sofa-to-shreds/_jcr_content/par/featured_image/media-0.img.jpg/931/524/1510172827500.jpg?ve=1&tl=1'>

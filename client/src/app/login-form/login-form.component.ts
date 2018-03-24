@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 })
 export class LoginFormComponent implements OnInit {
     response: string;
+    username_error:string;
+    password_error:string;
 
     constructor(private http: HttpClient, private auth: AuthService, private router: Router) { }
 
@@ -34,6 +36,9 @@ export class LoginFormComponent implements OnInit {
                 }
                 else {
                     this.response = data.message;
+                    if(data.mode == 2) {
+                        this.password_error = 'invalid'
+                    }
                 }
                 this.redirect()
             });

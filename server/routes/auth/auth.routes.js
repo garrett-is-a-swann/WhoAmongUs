@@ -62,7 +62,7 @@ router.route('/login')
         if(resp == true) {
             req.WhoAmongUs.username = req.body.username;
         }
-        res.send({success:true, mode:1, message:'Authentication successful.'})
+        res.send({success:true, mode:0, message:'Authentication successful.'})
     }).catch(err => {
         console.log(err)
         res.json(err);
@@ -75,7 +75,7 @@ router.route('/is-auth')
 }).get((req,res,next) => {
     if(req.WhoAmongUs && req.WhoAmongUs.username) {
         console.log(req.WhoAmongUs.username, 'is checking their authorization.');
-        res.send({success:true, message:'Authentication successful.'})
+        res.send({success:true, message:'Authentication successful.', username:req.WhoAmongUs.username})
     } else {
         res.send({success:false, message:'Not authenticated.'});
     }

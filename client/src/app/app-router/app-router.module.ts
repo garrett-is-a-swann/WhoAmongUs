@@ -7,6 +7,7 @@ import { HomeComponent } from '../home/home.component';
 import { RegisterFormComponent } from '../register-form/register-form.component';
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { ForOhForComponent } from '../for-oh-for/for-oh-for.component';
+import { LobbyComponent } from '../lobby/lobby.component';
 
 import { AuthGuardService } from '../auth-guard.service';
 import { AuthService } from '../auth.service';
@@ -21,6 +22,7 @@ const routes: Routes = [
                 path: ''
                 ,canActivateChild: [AuthGuardService]
                 ,children: [
+                    { path: '', component: LobbyComponent },
                 ]
             }
         ],

@@ -31,7 +31,7 @@ function authUser(username, password) {
         try {
             const username_check = await views.checkUsername(username);
             if(username_check.mode == 0) {
-                reject({success:false, mode: 0, message:'Username is not in use.'});
+                reject({success:false, mode: 1, message:'Username is not in use.'});
                 return;
             }
             if(username_check.mode == -1) {
@@ -48,12 +48,14 @@ function authUser(username, password) {
                 if(resp) {
                     resolve(true)
                 } else {
-                    reject({success:false, mode:0, message:'Incorrect password.'})
+                    reject({success:false, mode:2, message:'Incorrect password.'})
                 }
             }).catch(e => {
+                console.log(e)
                 reject(e)
             });
         } catch(e) {
+            console.log(e);
             reject(e)
         }
         

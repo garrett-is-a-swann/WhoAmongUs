@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, EventEmitter, SimpleChanges } from '@angular/core';
 import { ClockService } from '../clock.service';
 import { HttpClient } from '@angular/common/http';
 
@@ -8,10 +8,16 @@ import { HttpClient } from '@angular/common/http';
     templateUrl: './password.component.html',
     styleUrls: ['./password.component.css']
 })
-export class PasswordComponent implements OnInit {
+export class PasswordComponent implements OnInit, OnChanges{
+    @Input('post_err') post_error: string;
     model: string = '';
     error: string = '';
     style: string = 'required';
+
+    ngOnChanges(changes: SimpleChanges) {
+        if(this.post_error == 'invalid')
+            this.style = this.post_error
+    }
 
     constructor(private http: HttpClient, private clock: ClockService) {
         clock.init(()=>{this.postValidate()});
@@ -34,6 +40,7 @@ export class PasswordComponent implements OnInit {
     }
 
     postValidate() {
+        this.error = ''
         if( this.error.length > 0 ) {
             return;
         }
@@ -54,7 +61,5 @@ export class PasswordComponent implements OnInit {
             this.error = 'Error: Passwords need Upper(1), Lower(1), and non-alpha(1) characters';
             return;
         }
-        this.style = 'valid'
-        this.error = ''
     }
 }
