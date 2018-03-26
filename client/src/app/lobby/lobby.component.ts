@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
+import { LobbyService } from './lobby.service';
 
 @Component({
     selector: 'app-lobby',
@@ -9,6 +10,10 @@ import { AuthService } from '../auth.service';
 export class LobbyComponent implements OnInit {
     authenticated:any = false;
     tab:number = 0;
+
+    create_session /*form*/ = {
+        name: ''
+    }
 
     rooms:any[] = [
         {'title':'Room1',
@@ -34,7 +39,7 @@ export class LobbyComponent implements OnInit {
     ];
 
 
-    constructor(private auth: AuthService) { };
+    constructor(private auth: AuthService, private lobby: LobbyService) { };
 
     async ngOnInit() {
         console.log(this.rooms)
@@ -42,6 +47,17 @@ export class LobbyComponent implements OnInit {
             this.authenticated = state;
         })
         this.authenticated = await this.auth.isAuthenticated()
+    }
+
+    getMySessions() {
+        this.lobby.getMyLobby().then(res => {
+            if( res.success ) {
+                console.log(res.json);
+                this.rooms = res.json;
+            }
+        }).catch(err => {
+            // idk
+        });
     }
 
 }

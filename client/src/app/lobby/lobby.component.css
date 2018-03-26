@@ -60,3 +60,7 @@ p {
 .title-title-boy:hover {
     background-color: #375c99;
 }
+
+.lobby-room-container.waiting {
+    background-color: #cbffc7;
+}

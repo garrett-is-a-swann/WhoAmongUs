@@ -17,44 +17,46 @@
         </div>
 
         <div [ngClass]='{"is-active":tab==2}' class='column is-one-third button-boy fancy'
-            (click)='tab=2;'
+            (click)='tab=2;getMySessions()'
             >
             <p>Your Sessions</p>
         </div>
 
-        <div class='column is-three-fifths'
-            id='col-title'>
-            <p class='fancy title-title-boy'>
+        <!--Join Session-->
+        <div *ngIf='tab==0'
+            class='column columns is-gapless is-mobile is-multiline'>
+            <div class='column is-three-fifths'
+                id='col-title'>
+                <p class='fancy title-title-boy'>
                 Session
-            </p>
-        </div>
+                </p>
+            </div>
 
-        <div class='column'
-            id='col-host'>
-            <p class='col-host fancy title-title-boy'>
+            <div class='column is-one-fifth'
+                id='col-host'>
+                <p class='col-host fancy title-title-boy'>
                 Host
-            </p>
-        </div>
+                </p>
+            </div>
 
-        <div class='column'
-            id='col-host'>
-            <p class='col-host fancy title-title-boy'>
+            <div class='column is-one-fifth'
+                id='col-host'>
+                <p class='col-host fancy title-title-boy'>
                 Players
-            </p>
-        </div>
+                </p>
+            </div>
 
-        <div *ngFor='let i of rooms' class='column is-12 lobby-room-container'>
-            <div class='columns is-mobile is-gapless fancy'>
+            <div *ngFor='let i of rooms' class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'>
                 <div class='column col-title is-three-fifths'
                     id='col-title'>
                     <p class=' title-boy'>
-                        {{i.title}}
+                    {{i.title}}
                     </p>
                 </div>
                 <div class='column is-one-fifths'
                     id='col-host'>
                     <p class='col-host title-boy'>
-                        {{i.host}}
+                    {{i.host}}
                     </p>
                 </div>
                 <div class='column is-one-fifths'>
@@ -64,6 +66,143 @@
                 </div>
             </div>
         </div>
+        
+        <!--Create Session-->
+        <div *ngIf='tab==1'
+            class='column columns is-gapless is-mobile is-multiline'>
+            <div class='column'>
+                <div class='card'>
+                    <div class='card-content'>
+                        <div class='content'>
+
+                            <div class='field is-horizontal'>
+                                <div class='field-label'>
+                                    <label class='label is-left'>Session Name</label>
+                                </div>
+                                <div class='field-body'>
+                                    <div class='field'>
+                                        <div class='control'>
+                                            <input class='input' type='text' placeholder="{{auth.whoAuthenticated()}}'s game" value="ggggg's game">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='field is-horizontal'>
+                                <div class='field-label'>
+                                    <label class='label is-left'>Lobby Size</label>
+                                </div>
+                                <div class='field-body'>
+
+                                    <div class='field'>
+                                        <div class='control'>
+                                            <input type='number' class='input' value='8' min='3' max='16'>
+                                        </div>
+                                    </div>
+
+                                    <div class='field'>
+                                        <div class='control'>
+                                            <label class='radio'>
+                                                <input type='radio' name='public' checked>
+                                                Public
+                                            </label>
+                                            <label class='radio'>
+                                                <input type='radio' name='public'>
+                                                Private
+                                            </label>
+                                            <label class='radio'>
+                                                <input type='radio' name='public' disabled>
+                                                Invite-Only
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='field'>
+                            </div>
+
+                            <div class='field is-horizontal'>
+                                <div class='field-label'>
+                                    <label class='label is-left'>Password</label>
+                                </div>
+                                <div class='field-body'>
+                                    <div class='field'>
+                                        <div class='control has-icons-left'>
+                                            <input type='text' class='input is-rounded' placeholder='Password'>
+                                            <span class='icon is-small is-left'>
+                                                <i class='fas fa-lock'></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='field is-horizontal'>
+                                <div class='field-label'>
+                                </div>
+                                <div class='field-body'>
+                                    <div class='field'>
+                                        <button class='button' (click)='lobby.createLobby()'>Create</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Your Sessions-->
+        <div *ngIf='tab==2'
+            class='column columns is-gapless is-mobile is-multiline'>
+            <div class='column is-three-fifths'
+                id='col-title'>
+                <p class='fancy title-title-boy'>
+                Session
+                </p>
+            </div>
+
+            <div class='column is-one-fifth'
+                id='col-host'>
+                <p class='col-host fancy title-title-boy'>
+                Host
+                </p>
+            </div>
+
+            <div class='column is-one-fifth'
+                id='col-host'>
+                <p class='col-host fancy title-title-boy'>
+                Players
+                </p>
+            </div>
+
+            <div *ngFor='let i of rooms' class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
+                [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}"
+                >
+                <div class='column col-title is-three-fifths'
+                    id='col-title'>
+                    <p class=' title-boy'>
+                    {{i.name}}
+                    <span class='icon is-left'>
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    </p>
+                </div>
+                <div class='column is-one-fifths'
+                    id='col-host'>
+                    <p class='col-host title-boy'>
+                    {{i.username}}
+                    </p>
+                </div>
+                <div class='column is-one-fifths'>
+                    <p class='title-boy'>
+                    {{i.players}} / {{i.cap}}
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

@@ -62,8 +62,23 @@ function authUser(username, password) {
     });
 }
 
+// Middleware
+
+function isAuth_Ware(req, res, next) {
+    console.log(req.WhoAmongUs)
+    if(req.WhoAmongUs && req.WhoAmongUs.username) {
+        console.log(req.WhoAmongUs.username, 'is checking their authorization.');
+        console.log('Authenticated.')
+        next();
+    } else {
+        console.log('Not authenticated.')
+        res.send({success:false, message:'Not authenticated.'});
+    }
+}
+
 module.exports = {
     router:router
     ,verifyPassword:verifyPassword
     ,authUser:authUser
+    ,isAuth:isAuth_Ware
 };
