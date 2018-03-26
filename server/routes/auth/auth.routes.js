@@ -4,15 +4,6 @@ const router = express.Router();
 const views = require('./auth.views')
 const auth_ = require('./auth.middleware')
 
-const config = require('../../configs/sessionconfig.json');
-
-const session = require('client-sessions');
-router.use(session({
-    cookieName: 'WhoAmongUs'
-    ,secret: config.cookieKey
-    ,duration: 45 * 60 * 1000 // 45 minutes
-    ,activeDuration: 25 * 60 * 1000 // 25 minutes
-}));
 
 
 
@@ -72,9 +63,8 @@ router.route('/login')
 router.route('/is-auth')
 .all((req, res, next) => {
     next();
-}).get((req,res,next) => {
+}).get(auth_.isAuth, (req,res,next) => {
     if(req.WhoAmongUs && req.WhoAmongUs.username) {
-        console.log(req.WhoAmongUs.username, 'is checking their authorization.');
         res.send({success:true, message:'Authentication successful.', username:req.WhoAmongUs.username})
     } else {
         res.send({success:false, message:'Not authenticated.'});

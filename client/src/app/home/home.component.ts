@@ -15,10 +15,10 @@ export class HomeComponent implements OnInit {
     async ngOnInit() {
         this.auth.stateChangeEmitter().subscribe(async (auth, username) =>{
             this.authenticated = auth;
-            this.username = await this.auth.whoAuthenticated()
+            this.username = this.auth.whoAuthenticated()
         })
         this.authenticated = await this.auth.isAuthenticated()
-        this.username = await this.auth.whoAuthenticated()
+        this.username = this.auth.whoAuthenticated()
     }
 
 

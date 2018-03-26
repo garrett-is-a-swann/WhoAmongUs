@@ -11,6 +11,7 @@ import { LobbyComponent } from '../lobby/lobby.component';
 
 import { AuthGuardService } from '../auth-guard.service';
 import { AuthService } from '../auth.service';
+import { LobbyService } from '../lobby/lobby.service';
 
 const routes: Routes = [
     {   path: ''
@@ -22,7 +23,9 @@ const routes: Routes = [
                 path: ''
                 ,canActivateChild: [AuthGuardService]
                 ,children: [
-                    { path: '', component: LobbyComponent },
+                    { path: '', redirectTo: '/lobby', pathMatch: 'full' },
+                    { path: 'lobby', component: LobbyComponent },
+                    { path: 'lobby/:tab', component: LobbyComponent },
                 ]
             }
         ],
@@ -39,7 +42,8 @@ const routes: Routes = [
     ],
     providers: [
         AuthGuardService,
-        AuthService
+        AuthService,
+        LobbyService
     ],
     declarations: [
     ]

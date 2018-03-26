@@ -104,9 +104,7 @@ export class AuthService {
     }
 
     whoAuthenticated() {
-        return new Promise((resolve, reject) => {
-            resolve(this.auth_user);
-        });
+            return this.auth_user;
     }
 
     stateChangeEmitter() {
