@@ -5,7 +5,7 @@
     <div class='columns is-gapless is-multiline is-mobile'>
 
         <div [ngClass]='{"is-active":tab==0}' class='column is-one-third button-boy fancy'
-            (click)='tab=0;'
+            (click)='tab=0;getSessions()'
             >
             <p>Join Session</p>
         </div>
@@ -23,7 +23,11 @@
         </div>
 
         <!--Join Session-->
-        <div *ngIf='tab==0'
+        <div *ngIf='tab==0 && rooms.length == 0'
+            class='column'>
+            <p>No available lobbies.</p>
+        </div>
+        <div *ngIf='tab==0 && rooms.length > 0'
             class='column columns is-gapless is-mobile is-multiline'>
             <div class='column is-three-fifths'
                 id='col-title'>
@@ -50,18 +54,18 @@
                 <div class='column col-title is-three-fifths'
                     id='col-title'>
                     <p class=' title-boy'>
-                    {{i.title}}
+                    {{i.name}}
                     </p>
                 </div>
                 <div class='column is-one-fifths'
                     id='col-host'>
                     <p class='col-host title-boy'>
-                    {{i.host}}
+                    {{i.username}}
                     </p>
                 </div>
                 <div class='column is-one-fifths'>
                     <p class='title-boy'>
-                    {{i.players}} / {{i.cap}}
+                    {{i.players}} / {{i.capacity}}
                     </p>
                 </div>
             </div>
@@ -82,7 +86,8 @@
                                 <div class='field-body'>
                                     <div class='field'>
                                         <div class='control'>
-                                            <input class='input' type='text' placeholder="{{auth.whoAuthenticated()}}'s game" value="ggggg's game">
+                                            <input #name [(ngModel)]='session_form.name'
+                                                class='input' type='text' placeholder="{{auth.whoAuthenticated()}}'s game">
                                         </div>
                                     </div>
                                 </div>
@@ -95,22 +100,32 @@
 
                                     <div class='field'>
                                         <div class='control'>
-                                            <input type='number' class='input' value='8' min='3' max='16'>
+                                            <input #capacity [(ngModel)]='session_form.capacity'
+                                                type='number' class='input' min='3' max='16'>
                                         </div>
                                     </div>
 
                                     <div class='field'>
                                         <div class='control'>
                                             <label class='radio'>
-                                                <input type='radio' name='public' checked>
+                                                <input #public
+                                                    [(ngModel)]='session_form._public'
+                                                    [value]='true'
+                                                    type='radio' name='public' selected>
                                                 Public
                                             </label>
                                             <label class='radio'>
-                                                <input type='radio' name='public'>
+                                                <input #private
+                                                    [(ngModel)]='session_form._public'
+                                                    [value]='false'
+                                                    type='radio' name='private'>
                                                 Private
                                             </label>
                                             <label class='radio'>
-                                                <input type='radio' name='public' disabled>
+                                                <input #invite_only
+                                                    [(ngModel)]='session_form._public'
+                                                    [value]='null'
+                                                    type='radio' name='invite_only' disabled>
                                                 Invite-Only
                                             </label>
                                         </div>
@@ -128,7 +143,8 @@
                                 <div class='field-body'>
                                     <div class='field'>
                                         <div class='control has-icons-left'>
-                                            <input type='text' class='input is-rounded' placeholder='Password'>
+                                            <input #password [(ngModel)]='session_form.password'
+                                                type='text' class='input is-rounded' placeholder='Optional Password'>
                                             <span class='icon is-small is-left'>
                                                 <i class='fas fa-lock'></i>
                                             </span>
@@ -142,7 +158,8 @@
                                 </div>
                                 <div class='field-body'>
                                     <div class='field'>
-                                        <button class='button' (click)='lobby.createLobby()'>Create</button>
+                                        <button class='button' (click)='createLobby()'>Create</button>
+                                        <p *ngIf='session_form.success==true'>Successfully Created</p>
                                     </div>
                                 </div>
                             </div>
@@ -151,10 +168,18 @@
                     </div>
                 </div>
             </div>
+            {{session_form.name}}
+            {{session_form.capacity}}
+            {{session_form._public}}
+            {{session_form.password}}
         </div>
 
         <!--Your Sessions-->
-        <div *ngIf='tab==2'
+        <div *ngIf='tab==2 && rooms.length == 0'
+            class='column'>
+            <p>Nothing to see here.</p>
+        </div>
+        <div *ngIf='tab==2 && rooms.length != 0'
             class='column columns is-gapless is-mobile is-multiline'>
             <div class='column is-three-fifths'
                 id='col-title'>
@@ -197,7 +222,7 @@
                 </div>
                 <div class='column is-one-fifths'>
                     <p class='title-boy'>
-                    {{i.players}} / {{i.cap}}
+                    {{i.players}} / {{i.capacity}}
                     </p>
                 </div>
             </div>

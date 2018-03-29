@@ -3,8 +3,6 @@ const router = express.Router();
 
 const auth_ = require('../auth/auth.middleware')
 
-const crypto = require('crypto');
-
 const db = require('../../db')
 
 /*
@@ -18,28 +16,22 @@ const db = require('../../db')
     ,date_created TIMESTAMP NOT NULL DEFAULT current_timestamp
     */
 
-function createLobby(username, name, rule_string) {
+// TODO(Garrett): Add password feature. Add rulestring, add public/private
+function createLobby(username, name, capacity, public, password, rule_string ) {
     return new Promise((resolve, reject) => {
         try {
-            db.query(
-                    `WITH sub AS ( SELECT id, a.name, b.rule_string FROM wau.user
-                            JOIN
-                            (SELECT $2 as name)a ON 1=1
-                            JOIN
-                            (SELECT $3 as rule_string)b ON 1=1
-                            WHERE username = $1
-                            )
-                    INSERT INTO wau.lobby (hostid, name, rule_string)
-                        SELECT id, name, rule_string FROM sub;`
-                    , [username, name.length?name:username+"'s session", rule_string], (err, res) => {
-                if(err) {
-                    console.log(err)
-                    reject(err)
-                }
-                else {
-                    console.log({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
-                    resolve({hash:res.rows[0].hash, salt:res.rows[0].salt, username:username})
-                }
+            name = name.length?name:username+"'s session"
+            db.query("SELECT id FROM wau.user WHERE username = $1",[username],(err, res) => {
+                db.query('INSERT INTO wau.lobby (hostid, name, rule_string, capacity, public) values ($1, $2, $3, $4, $5) RETURNING hostid, name;'
+                    , [res.rows[0].id, name, rule_string, capacity, public], (errp, resp) => {
+                    if(errp) {
+                        reject(errp)
+                    }
+                    else {
+                        console.log('Lobby:', resp.rows[0].hostid, resp.rows[0].name, 'created');
+                        resolve({success:true, message:'Lobby created'});
+                    }
+                });
             });
         } catch (e) {
             console.log(e)
@@ -51,7 +43,7 @@ function createLobby(username, name, rule_string) {
 // TODO Change this to get all lobbies, not just host lobbies?
 function getMyLobbies(username) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT username, name, active, rule_string, l.salt='' as password, l.date_created
+        db.query(`SELECT username, name, active, rule_string, l.salt='' as password, l.date_created, capacity
                 FROM wau.lobby l
                 JOIN wau.user u ON u.id = l.hostid
                 WHERE u.username = $1
@@ -68,6 +60,32 @@ function getMyLobbies(username) {
     });
 }
 
-module.exports = {
-    getUserLobbies:getMyLobbies
+
+// TODO Change this to get all lobbies, not just host lobbies?
+function getLobbies() {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT username, name, active, rule_string, l.salt='' as password, l.date_created, capacity
+                FROM wau.lobby l
+                JOIN wau.user u ON u.id = l.hostid
+                `, [], (err, res) => {
+            if(err) {
+                console.log('Unexpected Error:', err);
+                reject(err);
+            }
+            else {
+                console.log(res.rows);
+                resolve(res.rows);
+            }
+        });
+    });
 }
+
+
+
+module.exports = {
+    createLobby:createLobby
+    ,getUserLobbies:getMyLobbies
+    ,getLobbies:getLobbies
+}
+
+

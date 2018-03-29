@@ -7,9 +7,10 @@ export class LobbyService {
 
     constructor(private http: HttpClient) { }
 
-    createLobby(name = '', password = '', rules = '') {
-        return new Promise((resolve, reject) => {
-            this.http.post('/api/lobby/create', {name:name,password:password, rules:rules})
+    createLobby(name, capacity, _public, password, rules) {
+        return new Promise<any>((resolve, reject) => {
+        console.log(name, capacity, _public, password, rules);
+            this.http.post('/api/lobby/create', {name:name,capacity:capacity,public:_public,password:password, rules:rules})
                 .subscribe((data:any) =>{
                     if(data.success) {
 
@@ -38,5 +39,20 @@ export class LobbyService {
         })
     }
 
+
+    getLobbies() {
+        return new Promise<any>((resolve, reject) => {
+            this.http.get('/api/lobby/lobbies')
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
+
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
 
 }

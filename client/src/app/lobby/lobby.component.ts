@@ -11,53 +11,83 @@ export class LobbyComponent implements OnInit {
     authenticated:any = false;
     tab:number = 0;
 
-    create_session /*form*/ = {
-        name: ''
+    session_form:any ={
+        name: this.auth.whoAuthenticated()+"'s game"
+        ,capacity: 8
+        ,_public: true
+        ,password: null
+        ,success: false
     }
 
-    rooms:any[] = [
-        {'title':'Room1',
-            'host':'Mr Host',
-            'players':6,
-            'cap':8}
-        ,{'title':'Room2',
-            'host':'Mr Host',
-            'players':4,
-            'cap':8}
-        ,{'title':'Room3',
-            'host':'Mr Host',
-            'players':7,
-            'cap':8}
-        ,{'title':'Room4',
-            'host':'Mr Host',
-            'players':8,
-            'cap':8}
-        ,{'title':'Room5',
-            'host':'Mr Host',
-            'players':1,
-            'cap':8}
-    ];
-
+    rooms:any[] = [];
 
     constructor(private auth: AuthService, private lobby: LobbyService) { };
 
     async ngOnInit() {
-        console.log(this.rooms)
         this.auth.stateChangeEmitter().subscribe(state =>{
             this.authenticated = state;
         })
         this.authenticated = await this.auth.isAuthenticated()
+
+        this.getSessions(); 
     }
 
-    getMySessions() {
-        this.lobby.getMyLobby().then(res => {
+    async createLobby() {
+        this.lobby.createLobby(
+            this.session_form.name,
+            this.session_form.capacity,
+            this.session_form._public ,
+            this.session_form.password, ''
+        ).then(res => {
+
             if( res.success ) {
-                console.log(res.json);
-                this.rooms = res.json;
+                this.session_form.success=true;
             }
         }).catch(err => {
             // idk
         });
     }
 
+    getMySessions() {
+        this.lobby.getMyLobby().then(res => {
+            if( res.success ) {
+                this.rooms = res.json;
+            }
+        }).catch(err => {
+            // idk
+        });
+        this.setStyle();
+    }
+
+    getSessions() {
+        this.lobby.getLobbies().then(res => {
+            if( res.success ) {
+                this.rooms = res.json;
+            }
+        }).catch(err => {
+            // idk
+        });
+        this.setStyle();
+    }
+
+    setStyle() {
+        for(var i in this.rooms) {
+            if( this.rooms[i].active != false )
+                continue;
+            this.rooms[i].capacity = this.rooms[i].capacity? this.rooms[i].capacity: 8;
+            var style_ratio:number = (parseInt(i)-(this.rooms[i].capacity/2)) / (this.rooms[i].capacity-(this.rooms[i].capacity/2))
+            if(style_ratio <= .20)
+                this.rooms[i].style = 'low-capacity'
+            if(style_ratio <= .40)
+                this.rooms[i].style = 'med-low-capacity'
+            if(style_ratio <= .60)
+                this.rooms[i].style = 'med-capacity'
+            if(style_ratio <= .80)
+                this.rooms[i].style = 'med-high-capacity'
+            if(style_ratio <= 1)
+                this.rooms[i].style = 'high-capacity'
+            if(this.rooms[i].capacity == i)
+                this.rooms[i].style = 'max-capacity'
+        }
+    }
 }

@@ -64,3 +64,24 @@ p {
 .lobby-room-container.waiting {
     background-color: #cbffc7;
 }
+
+
+
+.low-capacity {
+    background: #ccfecb;
+}
+.med-low-capacity {
+    background: #d3dbaf;
+}
+.med-capacity {
+    background: #dfa282;
+}
+.med-capacity {
+    background: #e4876c;
+}
+.high-capacity {
+    background: #e96e58;
+}
+.max-capacity {
+    background: #f53228;
+}
