@@ -12,7 +12,6 @@ const app = express();
 // Forward everything to mafia router
 app.use(mafia)
 app.all('*', (req, res, next) => {
-    console.log('Hi!!!!')
     next();
 });
 

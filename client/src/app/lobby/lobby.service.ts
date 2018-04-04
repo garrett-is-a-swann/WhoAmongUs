@@ -9,7 +9,6 @@ export class LobbyService {
 
     createLobby(name, capacity, _public, password, rules) {
         return new Promise<any>((resolve, reject) => {
-        console.log(name, capacity, _public, password, rules);
             this.http.post('/api/lobby/create', {name:name,capacity:capacity,public:_public,password:password, rules:rules})
                 .subscribe((data:any) =>{
                     if(data.success) {
@@ -17,7 +16,6 @@ export class LobbyService {
                         resolve({success:true, message: 'Lobby created.'});
                     }
                     else {
-
                         resolve({success:false, message: data.message});
                     }
                 });
@@ -32,7 +30,6 @@ export class LobbyService {
                         resolve({success:true, json: data.json});
                     }
                     else {
-
                         resolve({success:false, message: data.message});
                     }
                 });
@@ -48,7 +45,34 @@ export class LobbyService {
                         resolve({success:true, json: data.json});
                     }
                     else {
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
 
+    joinLobby(id:number) {
+        return new Promise<any>((resolve, reject) => {
+            this.http.post('/api/lobby/lobby/'+id, {})
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
+
+    leaveLobby(id:number) {
+        return new Promise<any>((resolve, reject) => {
+            this.http.delete('/api/lobby/lobby/'+id)
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
                         resolve({success:false, message: data.message});
                     }
                 });

@@ -29,8 +29,7 @@
         </div>
         <div *ngIf='tab==0 && rooms.length > 0'
             class='column columns is-gapless is-mobile is-multiline'>
-            <div class='column is-three-fifths'
-                id='col-title'>
+            <div class='column is-three-fifths'>
                 <p class='fancy title-title-boy'>
                 Session
                 </p>
@@ -50,11 +49,33 @@
                 </p>
             </div>
 
-            <div *ngFor='let i of rooms' class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'>
-                <div class='column col-title is-three-fifths'
-                    id='col-title'>
-                    <p class=' title-boy'>
-                    {{i.name}}
+            <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
+                *ngFor='let i of rooms' >
+                <div class='column col-title is-three-fifths clickable row-boy'
+                    style="position:relative">
+
+                    <div class='overlay'></div>
+                    <div class='sub-liminal' style='position:absolute;left:4px;display:table;height:100%;'>
+                        <a *ngIf='!i.enrolled'
+                            class='button is-success is-centered' style='display:table-cell;vertical-align:middle;'
+                            (click)='joinSession(i.id);'>
+                            Join
+                        </a>
+                        <a *ngIf='i.enrolled'
+                            class='button is-danger is-centered' style='display:table-cell;vertical-align:middle;'
+                            (click)='leaveSession(i.id)'>
+                            Leave
+                        </a>
+                    </div>
+                    <p class='title-boy'>
+                        <span *ngIf='i.enrolled' class='icon is-small is-left'>
+                            <i class='fas fa-user'></i>
+                        </span>
+                        {{i.name}}
+                        <span *ngIf='i.password'
+                            class='icon is-left'>
+                            <i class="fas fa-lock"></i>
+                        </span>
                     </p>
                 </div>
                 <div class='column is-one-fifths'
@@ -168,10 +189,6 @@
                     </div>
                 </div>
             </div>
-            {{session_form.name}}
-            {{session_form.capacity}}
-            {{session_form._public}}
-            {{session_form.password}}
         </div>
 
         <!--Your Sessions-->
@@ -181,8 +198,7 @@
         </div>
         <div *ngIf='tab==2 && rooms.length != 0'
             class='column columns is-gapless is-mobile is-multiline'>
-            <div class='column is-three-fifths'
-                id='col-title'>
+            <div class='column is-three-fifths'>
                 <p class='fancy title-title-boy'>
                 Session
                 </p>
@@ -202,14 +218,17 @@
                 </p>
             </div>
 
-            <div *ngFor='let i of rooms' class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
-                [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}"
+            <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container clickable'
+                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}"
                 >
-                <div class='column col-title is-three-fifths'
-                    id='col-title'>
+                <div class='column col-title is-three-fifths'>
                     <p class=' title-boy'>
+                    <span *ngIf='i.enrolled' class='icon is-small is-left'>
+                        <i class='fas fa-user'></i>
+                    </span>
                     {{i.name}}
-                    <span class='icon is-left'>
+                    <span *ngIf='i.password'
+                        class='icon is-left'>
                         <i class="fas fa-lock"></i>
                     </span>
                     </p>

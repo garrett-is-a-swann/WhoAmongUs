@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -13,7 +14,7 @@ export class AuthService {
 
     redirectUrl: string = '';
     
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private router: Router) {
     }
 
     checkAuthenticated() {
@@ -43,7 +44,7 @@ export class AuthService {
         })
     }
 
-    login(username:string, password:string) {
+    login(username:string, password:string, navigate?) {
         return new Promise((resolve, reject) => {
             this.http.post('/api/auth/login', {username:username,password:password})
                 .subscribe((data:any) =>{
@@ -53,6 +54,9 @@ export class AuthService {
 
                         // Handle event last
                         this.state_change.emit(this.isLoggedin);
+                        if(navigate)
+                        setTimeout(()=>{
+                            this.router.navigate([navigate])}, 500)
                         resolve({success:true, message: 'Authentication successful.'});
                     }
                     else {

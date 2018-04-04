@@ -68,7 +68,39 @@ export class LobbyComponent implements OnInit {
             // idk
         });
         this.setStyle();
+        console.log(this.rooms)
     }
+
+    joinSession(id:number) {
+        this.lobby.joinLobby(id).then(res => {
+            console.log(res)
+            if( res.success ) {
+                // Session has been joined! Redirect? Message?
+            }
+            else {
+                // Session has already been filled? Message?
+            }
+            this.getSessions();
+        }).catch(err => {
+            // idk
+        });
+    }
+
+    leaveSession(id:number) {
+        this.lobby.leaveLobby(id).then(res => {
+            console.log(res)
+            if( res.success ) {
+                // Session has been left! Redirect? Message?
+            }
+            else {
+                // ??
+            }
+            this.getSessions();
+        }).catch(err => {
+            // idk
+        });
+    }
+
 
     setStyle() {
         for(var i in this.rooms) {

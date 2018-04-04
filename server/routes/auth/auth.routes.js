@@ -35,7 +35,7 @@ router.route('/register')
     try {
         if( (resp = await views.createUser(req.body)).success ) {
             req.WhoAmongUs.username = req.body.username;
-            res.json(resp);
+            req.WhoAmongUs.uid = resp.id;
         }
         else
             res.json(resp)
@@ -50,8 +50,9 @@ router.route('/login')
     next();
 }).post( async (req,res,next) => {
     auth_.authUser(req.body.username, req.body.password).then(resp => {
-        if(resp == true) {
+        if(resp.success == true) {
             req.WhoAmongUs.username = req.body.username;
+            req.WhoAmongUs.uid = resp.uid;
         }
         res.send({success:true, mode:0, message:'Authentication successful.'})
     }).catch(err => {
