@@ -32,14 +32,6 @@ export class RoomComponent implements OnInit, OnDestroy {
         console.log('hasdlfj')
         await this.getRoomContents();
 
-        /*
-        this.auth.stateChangeEmitter().subscribe(async (auth, username) =>{
-            this.authenticated = auth;
-            var user = this.auth.whoAuthenticated()
-            this.states.name = user.user;
-            this.states.id = user.uid;
-
-        }) */
         this.authenticated = await this.auth.isAuthenticated();
         var user = this.auth.whoAuthenticated();
 		console.log(user, this.players);
@@ -149,7 +141,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                 this.states.status = 'afk';
                 this.players.filter(player => player.name == this.states.name)[0].status = this.states.status;
                 console.log('becoming afk', this.states);
-                this.socket.emit('report client status', this.states)
+                this.socket.emit('report client status', this.router.url, this.states)
             }, 1000 * 60 * 5)
         }
     }
