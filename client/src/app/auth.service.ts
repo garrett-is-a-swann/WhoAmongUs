@@ -9,6 +9,7 @@ export class AuthService {
     private isLoggedin:boolean = false;
     private reload:boolean = true;
     private auth_user:string = 'NULL';
+    private auth_uid:number = -1;
 
     state_change : EventEmitter<boolean> = new EventEmitter();
 
@@ -28,6 +29,8 @@ export class AuthService {
                     if(data.success) {
                         this.isLoggedin = true;
                         this.auth_user = data.username;
+                        console.log(data)
+                        this.auth_uid = data.uid;
 
                         // Handle event last
                         this.state_change.emit(this.isLoggedin);
@@ -51,6 +54,7 @@ export class AuthService {
                     if(data.success) {
                         this.isLoggedin = true;
                         this.auth_user = username;
+                        this.auth_uid = data.uid;
 
                         // Handle event last
                         this.state_change.emit(this.isLoggedin);
@@ -62,6 +66,7 @@ export class AuthService {
                     else {
                         this.isLoggedin = false;
                         this.auth_user = '';
+                        this.auth_uid = -1;
 
                         // Handle event last
                         this.state_change.emit(this.isLoggedin);
@@ -80,6 +85,7 @@ export class AuthService {
                     if(data.success) {
                         this.isLoggedin = false;
                         this.auth_user = '';
+                        this.auth_uid = -1;
 
                         // Handle event last
                         this.state_change.emit(this.isLoggedin);
@@ -108,7 +114,7 @@ export class AuthService {
     }
 
     whoAuthenticated() {
-            return this.auth_user;
+        return {user:this.auth_user, uid:this.auth_uid};
     }
 
     stateChangeEmitter() {

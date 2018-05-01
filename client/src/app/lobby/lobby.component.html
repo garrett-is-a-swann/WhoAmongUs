@@ -50,15 +50,16 @@
             </div>
 
             <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
-                *ngFor='let i of rooms' >
+                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}">
                 <div class='column col-title is-three-fifths clickable row-boy'
                     style="position:relative">
 
-                    <div class='overlay'></div>
-                    <div class='sub-liminal' style='position:absolute;left:4px;display:table;height:100%;'>
+                    <div (click)='gotoRoom(i)' class='overlay'></div>
+                    <div  class='sub-liminal' style='position:absolute;left:4px;display:table;height:100%;'>
                         <a *ngIf='!i.enrolled'
                             class='button is-success is-centered' style='display:table-cell;vertical-align:middle;'
-                            (click)='joinSession(i.id);'>
+                            (click)='i.password || joinSession(i.id);
+                                    i.password && modal._active=true; modal._id = i.id'>
                             Join
                         </a>
                         <a *ngIf='i.enrolled'
@@ -164,7 +165,7 @@
                                 <div class='field-body'>
                                     <div class='field'>
                                         <div class='control has-icons-left'>
-                                            <input #password [(ngModel)]='session_form.password'
+                                            <input [(ngModel)]='session_form.password'
                                                 type='text' class='input is-rounded' placeholder='Optional Password'>
                                             <span class='icon is-small is-left'>
                                                 <i class='fas fa-lock'></i>
@@ -218,19 +219,33 @@
                 </p>
             </div>
 
-            <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container clickable'
-                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}"
-                >
-                <div class='column col-title is-three-fifths'>
-                    <p class=' title-boy'>
-                    <span *ngIf='i.enrolled' class='icon is-small is-left'>
-                        <i class='fas fa-user'></i>
-                    </span>
-                    {{i.name}}
-                    <span *ngIf='i.password'
-                        class='icon is-left'>
-                        <i class="fas fa-lock"></i>
-                    </span>
+            <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
+                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}">
+                <div class='column col-title is-three-fifths clickable row-boy'
+                    style="position:relative">
+
+                    <div class='overlay'></div>
+                    <div class='sub-liminal' style='position:absolute;left:4px;display:table;height:100%;'>
+                        <a *ngIf='!i.enrolled'
+                            class='button is-success is-centered' style='display:table-cell;vertical-align:middle;'
+                            (click)='joinSession(i.id);'>
+                            Join
+                        </a>
+                        <a *ngIf='i.enrolled'
+                            class='button is-danger is-centered' style='display:table-cell;vertical-align:middle;'
+                            (click)='leaveSession(i.id)'>
+                            Leave
+                        </a>
+                    </div>
+                    <p class='title-boy'>
+                        <span *ngIf='i.enrolled' class='icon is-small is-left'>
+                            <i class='fas fa-user'></i>
+                        </span>
+                        {{i.name}}
+                        <span *ngIf='i.password'
+                            class='icon is-left'>
+                            <i class="fas fa-lock"></i>
+                        </span>
                     </p>
                 </div>
                 <div class='column is-one-fifths'
@@ -247,6 +262,40 @@
             </div>
         </div>
 
+
     </div>
+</div>
+
+<!-- TODO: Create a separate sub component for this because it smells -->
+<div #modal class='modal' [ngClass]="{'is-active':modal._active}">
+    <div class='modal-background'
+        (click)='modal._active = false; modal._id = undefined'></div>
+    <div class='modal-content'>
+        <div class='card'>
+            <div class='card-image'>
+                <figure class='image is 4by3'>
+                    <img src='https://sophosnews.files.wordpress.com/2014/11/250-cat-2.jpg' alt='password cat'>
+                </figure>
+            </div>
+            <div class='card-content'>
+                {{ password_field._error }} {{password_field.value}}
+                <div class='field has-addons'>
+                    <div class='control is-expanded'>
+                        <input #password_field type='text' placeholder='Room password'
+                               class='input is-rounded' [ngClass]="{'is-danger':password_field._error}"
+                           (keydown.enter)='joinSession(modal._id, password_field.value, password_field) || modal._active = false'>
+                    </div>
+                    <div class='control'>
+                        <button class='button is-info' 
+                            (click)='joinSession(modal._id, password_field.value, password_field._error) || modal._active = false'>Submit</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <button class='modal-close is-large' aria-label='close'
+        (click)='modal._active = false; modal._id = undefined'>
+    </button>
 </div>
 

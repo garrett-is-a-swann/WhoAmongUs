@@ -15,6 +15,10 @@ import { LoginComponent } from './form-element/login/login.component';
 import { PasswordComponent } from './form-element/password/password.component';
 import { EmailComponent } from './form-element/email/email.component';
 import { LobbyComponent } from './lobby/lobby.component';
+import { SocketComponent } from './socket/socket.component';
+import { RoomComponent } from './lobby/room/room.component';
+import { OnetomanyComponent } from './socket/onetomany/onetomany.component';
+import { OnetooneComponent } from './onetoone/onetoone.component';
 
 
 
@@ -29,6 +33,10 @@ import { LobbyComponent } from './lobby/lobby.component';
         PasswordComponent,
         EmailComponent,
         LobbyComponent,
+        SocketComponent,
+        RoomComponent,
+        OnetomanyComponent,
+        OnetooneComponent,
     ],
     imports: [
         BrowserModule,

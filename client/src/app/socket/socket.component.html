@@ -1,0 +1,27 @@
+<div class='chat-container'>
+	<div class='messages-container' id="{{room}}">
+		<div class='message-container' *ngFor='let message of messages'>
+			<div [ngClass]="{'from-me':message._from == 'Me'
+							,'from-them':message._from == 'Other'
+							,'room-msg':message._from == 'Server'}">
+				<div class='has-tooltip'>
+					<div class='tooltip-wrapper'><div class='tooltip msg-when'>{{message.time | date:'shortTime'}}</div></div>
+					<div class='msg-from'>{{message.from}}:</div>
+					<div class='msg-tail'>{{message.msg}} </div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div class='chat-text-field'>
+        <form>
+            <div class='field has-addons'>
+                <div class='control is-expanded'>
+                    <input class='input is-rounded' #messagefield id="m" autocomplete="off" (enter)='emit(messagefield.value)'/>
+                </div>
+                <div class='control'>
+                    <button class='button is-info' (click)='emit(messagefield.value)'>Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

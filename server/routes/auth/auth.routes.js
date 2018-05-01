@@ -66,7 +66,7 @@ router.route('/is-auth')
     next();
 }).get(auth_.isAuth, (req,res,next) => {
     if(req.WhoAmongUs && req.WhoAmongUs.username) {
-        res.send({success:true, message:'Authentication successful.', username:req.WhoAmongUs.username})
+        res.send({success:true, message:'Authentication successful.', username:req.WhoAmongUs.username, uid:req.WhoAmongUs.uid})
     } else {
         res.send({success:false, message:'Not authenticated.'});
     }

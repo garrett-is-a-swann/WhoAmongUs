@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { LobbyService } from './lobby.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-lobby',
@@ -12,7 +13,7 @@ export class LobbyComponent implements OnInit {
     tab:number = 0;
 
     session_form:any ={
-        name: this.auth.whoAuthenticated()+"'s game"
+        name: this.auth.whoAuthenticated().user+"'s game"
         ,capacity: 8
         ,_public: true
         ,password: null
@@ -21,7 +22,15 @@ export class LobbyComponent implements OnInit {
 
     rooms:any[] = [];
 
-    constructor(private auth: AuthService, private lobby: LobbyService) { };
+    constructor(private auth: AuthService, private lobby: LobbyService, private router: Router) {
+    }
+    gotoRoom(room) {
+        if(room.enrolled) {
+            this.router.navigate(['/lobby/'+room.id]);
+        } else {
+        // open up lobby rules
+        }
+    }
 
     async ngOnInit() {
         this.auth.stateChangeEmitter().subscribe(state =>{
@@ -68,19 +77,24 @@ export class LobbyComponent implements OnInit {
             // idk
         });
         this.setStyle();
-        console.log(this.rooms)
     }
 
-    joinSession(id:number) {
-        this.lobby.joinLobby(id).then(res => {
+    joinSession(id:number, password:string, error_field = null) {
+        this.lobby.joinLobby(id, password).then(res => {
             console.log(res)
             if( res.success ) {
+                this.rooms.filter(room => room.id == id)[0].enrolled=true;
+                this.rooms.filter(room => room.id == id)[0].players++;
                 // Session has been joined! Redirect? Message?
+                error_field._error = false;
             }
             else {
                 // Session has already been filled? Message?
+                error_field._error = true;
+                return false;
             }
             this.getSessions();
+            return true;
         }).catch(err => {
             // idk
         });

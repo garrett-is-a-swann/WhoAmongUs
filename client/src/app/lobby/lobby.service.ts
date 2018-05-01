@@ -5,7 +5,8 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class LobbyService {
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+    }
 
     createLobby(name, capacity, _public, password, rules) {
         return new Promise<any>((resolve, reject) => {
@@ -51,9 +52,9 @@ export class LobbyService {
         })
     }
 
-    joinLobby(id:number) {
+    joinLobby(id:number, password:string = '') {
         return new Promise<any>((resolve, reject) => {
-            this.http.post('/api/lobby/lobby/'+id, {})
+            this.http.post('/api/lobby/'+id, {id:id, password:password})
                 .subscribe((data:any) =>{
                     if(data.success) {
                         resolve({success:true, json: data.json});
@@ -67,7 +68,7 @@ export class LobbyService {
 
     leaveLobby(id:number) {
         return new Promise<any>((resolve, reject) => {
-            this.http.delete('/api/lobby/lobby/'+id)
+            this.http.delete('/api/lobby/'+id)
                 .subscribe((data:any) =>{
                     if(data.success) {
                         resolve({success:true, json: data.json});
@@ -79,4 +80,6 @@ export class LobbyService {
         })
     }
 
+}
+class Players{
 }
