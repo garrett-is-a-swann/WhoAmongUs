@@ -12,12 +12,15 @@ import * as io from 'socket.io-client';
 })
 export class RoomComponent implements OnInit, OnDestroy {
     private authenticated:any = false;
+	room_id = '';
+	room_capacity = -1;
     states = {
         name: ''
         ,id:null
         ,status: 'mia'
     }/*{username:this.states.name, id:this.states.id, status:this.states.status}*/
-    status_clock= null
+    status_clock= null;
+	//check_interv= null;
 
     players = [
     ]
@@ -29,13 +32,12 @@ export class RoomComponent implements OnInit, OnDestroy {
     socket = io('https://whoamong.us/api/lobby');
 
     async ngOnInit() {
-        console.log('hasdlfj')
+		this.room_id = this.router.url;
+		//this.check_interv = setInterval(()=>{this.getRoomContents()}, 1000*60);
         await this.getRoomContents();
 
         this.authenticated = await this.auth.isAuthenticated();
         var user = this.auth.whoAuthenticated();
-		console.log(user, this.players);
-        console.log('hey look at me lol',this.players.filter(player => player.name == user.user));
         this.states = this.players.filter(player => player.name == user.user)[0];
         this.states.status ='mia';
 
@@ -45,15 +47,20 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.socket.disconnect();
+ 		//clearInterval(this.check_interv);
+		this.states.status = 'mia';
+		this.socket.emit('report client status', this.room_id, this.states);
+		this.socket.disconnect();
+		console.log(this.states);
     }
 
     doSockets() {
 		// Introduce ourselves to the server.
-        this.socket.emit('i am', this.router.url, (id) => {
+        this.socket.emit('i am', this.room_id, (id) => {
 			// On introduction, make sure the server logs us (probably unnecessary?)
-            this.http.post('/api/lobby/lobby-io', {lobby:this.router.url, ioid:id})
+            this.http.post('/api/lobby/lobby-io', {lobby:this.room_id, ioid:id})
             .subscribe((data:any) =>{
+                console.log(data)
                 if(data.success) {
                 }
                 else {
@@ -69,14 +76,23 @@ export class RoomComponent implements OnInit, OnDestroy {
             this.socket.emit('report client status', to, this.states);
         });
 
-        this.socket.on('update client status', (payload)=> {
-			console.log(this.players.filter(player => player.name == payload.name))
-            this.players.filter(player => player.name == payload.name)[0].status = payload.status;
+        this.socket.on('update client status', async (payload)=> {
+			console.log('this should fire', payload)
+			try {
+				console.log(this.players.filter(player => player.name == payload.name))
+				this.players.filter(player => player.name == payload.name)[0].status = payload.status;
+			} catch(e) {
+				await this.getRoomContents()
+				this.players.filter(player => player.name == payload.name)[0].status = payload.status;
+			}
         });
-
+        
+        this.socket.on('game start', () => {
+            this.redirectGame();
+        })
 
 		// Ask for room status.
-        this.socket.emit('ask room status', this.router.url);
+        this.socket.emit('ask room status', this.room_id);
 
     }
 
@@ -87,9 +103,8 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     getRoomContents(){
         return new Promise((res, rej) => {
-            this.http.get('/api'+this.router.url)
+            this.http.get('/api'+this.room_id)
             .subscribe((data:any) =>{
-                console.log(data)
                 if(data.success) {
                     this.players = []
                     for(var i=0; i<data.json.users.length; i++) {
@@ -99,7 +114,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                             ,ishost:item.ishost
                             ,status:(item.username != this.states.name?'mia':'here')});
                     }
-                    console.log(this.players);
+					this.room_capacity = data.json.capacity;
                     res();
                 }
                 else {
@@ -110,11 +125,37 @@ export class RoomComponent implements OnInit, OnDestroy {
         })
     }
 
+    //Probably don't do it this way...
+    redirectGame() {
+        this.router.navigate(['/game/'+this.room_id.substring(6,)]);
+    }
+
+    startGame(){
+        this.http.put('/api'+this.room_id, {})
+        .subscribe((data:any) =>{
+            if(data.success) {
+                this.socket.emit('game start', this.room_id);
+                this.redirectGame();
+            }
+            else {
+                if( data.json ) {
+                    this.players = []
+                    for(var i=0; i<data.json.users.length; i++) {
+                        var item = data.json.users[i]
+                        this.players.push(
+                            {name:item.username
+                            ,ishost:item.ishost
+                            ,status:(item.username != this.states.name?'mia':'here')});
+                    }
+                    this.room_capacity = data.json.capacity;
+                }
+                console.log('lmao oh no');
+            }
+        });
+    }
 
 
     stillAlive() {
-		console.log(this.states);
-		console.log(this.players);
         this.restart();
         if(this.states.status != 'here') {
             this.states.status = 'here';
@@ -124,7 +165,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                 console.log('Threwup', this.players.filter(player => player.name == this.states.name)[0]);
                 console.log('Threp', this.players, this.states);
             }
-            this.socket.emit('report client status', this.router.url, this.states);
+            this.socket.emit('report client status', this.room_id, this.states);
         }
     }
 
@@ -141,7 +182,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                 this.states.status = 'afk';
                 this.players.filter(player => player.name == this.states.name)[0].status = this.states.status;
                 console.log('becoming afk', this.states);
-                this.socket.emit('report client status', this.router.url, this.states)
+                this.socket.emit('report client status', this.room_id, this.states)
             }, 1000 * 60 * 5)
         }
     }

@@ -1,0 +1,88 @@
+.is-fullwidth {
+    width:100%;
+}
+
+.back-cancel {
+    top:0;
+    bottom:0;
+    left:0;
+    width:4%;
+    position:fixed;
+}
+.back-drop {
+    background-color: rgba(10,10,10,.86)!important;
+    top:0;
+    bottom:0;
+    left:4%;
+    right:0;
+    position:fixed;
+}
+
+.popup-box {
+    height:370px;
+}
+.popup-socket {
+    height:100%;
+
+}
+
+
+
+.x-boy {
+    float:right;
+}
+
+
+
+
+
+
+
+.leader {
+    height:150px;
+}
+.night { 
+    background-color:hsl(0,0%,21%);
+    color:#eee;
+}
+.day { 
+    background-color:#bcd3ef;
+    color:hsl(0,0%,21%);
+}
+.is-a-me {
+	background:cadetblue;
+}
+.clock {
+    font-size:3rem;
+    font-weight:600;
+    text-align:center;
+}
+
+.night > .clock {
+    color:#0eff00;
+}
+.progress {
+    
+}
+.is-visible {
+    display:unset!important;
+}
+.socket-container {
+    display:none;
+}
+.voting-container {
+    display:none;
+}
+
+
+.anchor {
+    position: fixed;
+    bottom:0px;
+}
+
+#footer {
+    position:fixed;
+    bottom:0px;
+    left:0px;
+    width:100%;
+}

@@ -19,6 +19,7 @@ import { SocketComponent } from './socket/socket.component';
 import { RoomComponent } from './lobby/room/room.component';
 import { OnetomanyComponent } from './socket/onetomany/onetomany.component';
 import { OnetooneComponent } from './onetoone/onetoone.component';
+import { GameComponent } from './lobby/game/game.component';
 
 
 
@@ -37,6 +38,7 @@ import { OnetooneComponent } from './onetoone/onetoone.component';
         RoomComponent,
         OnetomanyComponent,
         OnetooneComponent,
+        GameComponent,
     ],
     imports: [
         BrowserModule,

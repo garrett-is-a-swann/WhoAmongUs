@@ -12,7 +12,7 @@ const ERR_MSG = 'There was an error. Our #1 meme professional is on duty to solv
     id SERIAL PRIMARY KEY
     ,hostid INTEGER NOT NULL
     ,name TEXT -- If null, source player's name
-    ,active BOOLEAN DEFAULT false
+    ,phase BOOLEAN DEFAULT false
     ,salt varchar(64) DEFAULT NULL -- NULL == false
     ,hash varchar(256) DEFAULT NULL
     ,rule_string TEXT NOT NULL 
@@ -73,7 +73,7 @@ function createLobby(username, name, capacity, public, password, rule_string ) {
 
 function getMyLobbies(username) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT l.id, username, name, active, rule_string, l.salt IS NOT NULL as password, l.date_created, capacity, true as enrolled, players
+        db.query(`SELECT l.id, username, name, phase, rule_string, l.salt IS NOT NULL as password, l.date_created, capacity, true as enrolled, players
                 FROM wau.lobby l
                 JOIN wau.user u ON u.id = l.hostid
                 LEFT JOIN ( 
@@ -98,7 +98,7 @@ function getMyLobbies(username) {
 function getLobbies(uid) {
     return new Promise((resolve, reject) => {
         db.query(`
-                SELECT l.id, username, name, active, rule_string, l.salt IS NOT NULL as password, 
+                SELECT l.id, username, name, phase, rule_string, l.salt IS NOT NULL as password, 
                     l.date_created, capacity, enrolled, players
                 FROM wau.lobby l
                 JOIN wau.user u
@@ -108,8 +108,10 @@ function getLobbies(uid) {
                     FROM wau.lobbyuser
                     GROUP BY lid
                     ) lu ON l.id = lu.lid
-                WHERE u.username = $1
-                    OR l.public = true
+                WHERE (u.username = $1
+                    OR l.public = true) and
+                    (l.phase_started is null OR enrolled)
+
                 ORDER BY l.date_created desc
                 `, [uid], (err, res) => {
             if(err) {
@@ -137,7 +139,11 @@ function getLobbyHash(lid) {
                     reject(err)
                 }
                 else {
-                    resolve({hash:res.rows[0].hash, salt:res.rows[0].salt, lid:lid})
+                    if(res.rows.length) {
+                        resolve({hash:res.rows[0].hash, salt:res.rows[0].salt, lid:lid});
+                    } else {
+                        resolve(false);
+                    }
                 }
             });
         } catch (e) {
@@ -148,11 +154,12 @@ function getLobbyHash(lid) {
 }
 
 
-function joinLobby(reqUser, lid, password) {
+// If swapping params 1&2 breaks something, i swear.
+function joinLobby(lid, reqUser, password) {
     return new Promise( async (resolve,reject)=>{
         var hashbrowns = await getLobbyHash(lid);
 
-        if(hashbrowns.hash) { 
+        if(hashbrowns && hashbrowns.hash) { 
             try {
             var resp = await auth_.verifyPassword(password, hashbrowns.hash, hashbrowns.salt);
             if(!resp) {
@@ -210,7 +217,7 @@ function leaveLobby(uid, lid) {
                 where exists (
                         select id
                         from wau.lobby
-                        where date_started is null
+                        where phase_started is null
                             and id = $2
                             and id = lu.lid
                     )
@@ -250,7 +257,7 @@ function getLobbyOwner(lid) {
 function getLobbyUsers(lid) {
     return new Promise(async (res, rej) => { 
         db.query(`
-            SELECT username,hostid = uid as ishost
+            SELECT username,hostid = uid as ishost, uid /* Probably remove uid in prod */
             FROM wau.user u
             INNER JOIN wau.lobbyuser lu ON u.id = uid
             INNER JOIN wau.lobby l ON lid = l.id
@@ -269,7 +276,7 @@ function getLobbyUsers(lid) {
 function isLobbyUser(lid, uid) {
     return new Promise((res, rej) => {
         db.query(`
-            SELECT $1 = lid as lid, $2 in (select uid from wau.lobbyuser where lid = $1) as uid, hash, salt
+            SELECT $1 = lid as lid, $2 in (select uid from wau.lobbyuser where lid = $1) as uid, hash, salt, capacity
             FROM wau.lobbyuser
             INNER JOIN wau.lobby on lid = id
             WHERE lid = $1
@@ -286,6 +293,47 @@ function isLobbyUser(lid, uid) {
     });
 }
 
+function getRandomInt/*Inclusive*/(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function generateNames(num) {
+    return new Promise((res, rej) => {
+        db.query(`
+            SELECT *
+            FROM firstname
+            `, [], (errf, resf) => {
+
+            db.query(`
+                SELECT *
+                FROM lastname
+                `, [], (errl, resl) => {
+
+                var firstnames = [];
+                var names = [];
+                while(firstnames.length < num){
+                    var rand = getRandomInt(0, resf.rows.length);
+                    if(firstnames.indexOf(resf.rows[rand])>-1) continue;
+
+                    firstnames.push(resf.rows[rand]);
+                    names.push({firstname:resf.rows[rand].name, lastname:''});
+                }
+
+                for(var i=0; i<num; i++) {
+                    var rand = getRandomInt(0, resl.rows.length);
+
+                    names[i].lastname = resl.rows[rand].name;
+                }
+                res(names);
+
+            })
+
+        })
+    });
+}
+
 module.exports = {
     createLobby:createLobby
     ,getUserLobbies:getMyLobbies
@@ -297,7 +345,7 @@ module.exports = {
             var lobby_info = await isLobbyUser(lid, uid);
             if(lobby_info.json.lid && lobby_info.json.uid || false /* Maybe check password here */) {
                 var users = await getLobbyUsers(lid);
-                resolve({success:true, message:"here you go lol.", json:{users:users.json.users}})
+                resolve({success:true, message:"here you go lol.", json:{users:users.json.users, capacity:lobby_info.json.capacity}})
             } else {
                 resolve({success:false, message:"You don't have authentication for this room.", json:{}})
             }
@@ -309,13 +357,25 @@ module.exports = {
             db.query(`
                 UPDATE wau.lobbyuser
                 set ioid = $3
-                WHERE lid = $1 AND uid = $2;
+                WHERE lid = $1 AND uid = $2
+                RETURNING first_name
                 `, [lid, uid, ioid], (err, resp) => {
                     if(err) {
                         console.log('Error in query: register Lobby IO Id.');
                         res({success:false, message:ERR_MSG});
                     }
                     else {
+                        if(resp.rows.length) {
+                            db.query(`
+                                SELECT first_name, last_name
+                                FROM wau.lobbyuser
+                                WHERE lid = $1 and uid = $2
+                                `, [lid, uid], (errp, myUser) => {
+                                    res({success:true, message:'Successfully registered io.', you_are:{name:myUser.rows[0].first_name, last_name: myUser.rows[0].last_name}});
+                                    return;
+                            });
+                            return;
+                        }
                         console.log('Register socket: ', ioid);
                         res({success:true, message:'Successfully registered io.'});
                     }
@@ -353,6 +413,42 @@ module.exports = {
                     res({success:true, json:resp.rows[0]});
                 }
             });
+        });
+    },startGame: (lid, uid) => {
+        return new Promise(async (res, rej) => {
+            var lobby_info = await isLobbyUser(lid, uid);
+            if(lobby_info.json.lid && lobby_info.json.uid || false /* Maybe check password here */) {
+                var users = await getLobbyUsers(lid);
+                if( users.json.users.length == lobby_info.json.capacity ) {
+                    var new_names = await generateNames(lobby_info.json.capacity);
+
+                    // Fix this later...
+                    for(var i=0; i<new_names.length; i++) {
+                        new_names[i].role = i%4==0?'Saint Bernard':i%4==1?'American Curl':i%4==2?'Blood Hound':'Good Boy(Dog)';
+                    }
+
+                    for(var i=0; i<new_names.length; i++) {
+                        db.query(`
+                            UPDATE wau.lobbyuser
+                            SET first_name = $3, last_name = $4, role = $5
+                            WHERE lid = $1 
+                                AND uid = $2
+                            `, [lid, users.json.users[i].uid, new_names[i].firstname, new_names[i].lastname, new_names[i].role], (err, resp) => {
+                                if(err) {
+                                    console.log('Error in query: startGame query')
+                                    res({success:false, message:ERR_MSG})
+                                    return
+                                }
+                            });
+                        res({success:true, message:"Game started."})
+                    }
+                } else {
+                    res({success:false, message:"Game not full", json:{users:users.json.users, capacity:lobby_info.json.capacity}})
+                }
+            } else {
+                res({success:false, message:"You don't have authentication for this room."})
+            }
+            
         });
     }
 }

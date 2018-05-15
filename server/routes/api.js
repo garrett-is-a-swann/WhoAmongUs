@@ -21,6 +21,8 @@ module.exports = (server) =>{
     const auth = require('./auth/auth.routes');
     const lobby = require('./lobby/lobby.routes')(io);
     const lobbyio = require('./lobby/lobby.io')(io);
+    const game = require('./game/game.routes')(io);
+    const gameio = require('./game/game.io')(io);
 
 
 

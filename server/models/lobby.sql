@@ -5,7 +5,9 @@ CREATE TABLE wau.lobby
     ,public boolean default true
     ,hostid integer NOT null
     ,name text -- If null, source player's name
-    ,active boolean default false
+    ,phase smallint default 0
+    ,phase_length interval default '00:15'
+    ,period varchar(10) default 'day'
     ,salt varchar(64) default null -- null == false
     ,hash varchar(256) default null
     ,rule_string text NOT null 

@@ -41,7 +41,7 @@ module.exports = (io) => {
     .post(async (req, res, next) => {
         try {
             // Do I care about parameters LOL NO.
-            res.json(await lobby.registerLobbyIOId(req.body.lobby.substring(7,)-0, req.WhoAmongUs.uid, req.body.ioid));
+            res.json(await lobby.registerLobbyIOId(req.body.lobby.split('/')[2], req.WhoAmongUs.uid, req.body.ioid));
         } catch(e) {
             console.log(e);
             res.json({success:false, message:'oh crap lmao'});
@@ -54,7 +54,8 @@ module.exports = (io) => {
         try {
             var lobby_info  = await lobby.getLobbyContents(req.params.id, req.WhoAmongUs.uid, '');
             if(lobby_info.success) {
-                res.json({success:true, json:lobby_info.json});
+                console.log(lobby_info)
+                res.json({success:true, json:lobby_info.json, capacity:lobby_info.capacity});
             } else {
                 res.json({success:false, message:lobby_info.message});
             }
@@ -65,12 +66,17 @@ module.exports = (io) => {
     })
     .post(async(req,res,next) => {
         try {
-            var resp = await lobby.joinLobby(req.WhoAmongUs.uid, req.params.id, req.body.password)
+            var resp = await lobby.joinLobby(req.params.id, req.WhoAmongUs.uid, req.body.password);
+
             res.json( resp );
         } catch(e) {
             console.log(e);
             res.json({success:false, message:'You broke my code! SHAME.'});
         }
+    })
+    .put(async (req, res, next) => {
+        console.log('Hello')
+        res.json(await lobby.startGame(req.params.id, req.WhoAmongUs.uid));
     })
     .delete(async(req,res,next) => {
         res.json( await lobby.leaveLobby(req.WhoAmongUs.uid, req.params.id))

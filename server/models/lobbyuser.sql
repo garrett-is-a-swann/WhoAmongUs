@@ -5,8 +5,10 @@ CREATE TABLE wau.lobbyuser
         ON DELETE CASCADE
     ,uid integer REFERENCES wau.user(id)
     ,ioid text default null
-    ,first_name varchar(12) default null
-    ,last_name varchar(12) default null
+    ,first_name varchar(24) default null
+    ,last_name varchar(24) default null
+    ,role text
+    ,alive boolean default true
     ,PRIMARY KEY (lid, uid)
     --,FOREIGN KEY (lid) REFERENCES wau.lobby (id)
     --,FOREIGN KEY (uid) REFERENCES wau.user (id)

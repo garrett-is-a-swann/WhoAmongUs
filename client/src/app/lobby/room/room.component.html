@@ -2,7 +2,7 @@
     <nav class='level'>
     </nav>
     <div class='columns'>
-        <app-socket [socket]='socket' [room]='router.url' class='column component-container' ></app-socket>
+        <app-socket [socket]='socket' [room]='room_id' class='column component-container' ></app-socket>
 		<div class='column is-one-fifth'>
 			<aside class="menu component-container">
 				<p class="menu-label">Players</p>
@@ -12,12 +12,13 @@
 						<a class='player-pane' [ngClass]="{
 								'has-text-success':player.status=='here',
 								'has-text-warning':player.status=='afk',
-								'has-text-grey-lighter':player.status=='mia'}">
+								'has-text-grey-lighter':player.status=='mia',
+								'is-a-me':player.name == states.name}">
 							<i class="fas fa-circle" style='color:inherit;' ></i> 
 							<span style='color:black!important;'>{{player.name}}</span>
 
 							<!-- View for lobby host -->
-							<a *ngIf='true' class='x-boy'>
+							<a *ngIf='states.ishost' class='x-boy'>
 								<i class='fas fa-times has-text-danger x-boy' ></i>
 							</a>
 
@@ -27,8 +28,9 @@
 				</ul>
 			</aside>
 			<div *ngIf='states.ishost'>
-				<a *ngIf='states.ishost' class='button is-success' style='width:100%;'>Start</a>
-				<a *ngIf='states.ishost' class='button is-success' style='width:100%;'>Start</a>
+				<a *ngIf='players.length == room_capacity' class='button is-success' style='width:100%;'
+                    (click)='startGame()'>Start</a>
+				<a *ngIf='players.length != room_capacity' class='button is-dark' style='width:100%;'>Start</a>
 			</div>
 		</div>
     </div>

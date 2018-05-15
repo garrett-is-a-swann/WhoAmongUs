@@ -50,7 +50,7 @@
             </div>
 
             <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
-                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}">
+                *ngFor='let i of rooms' [ngClass]="{'active':i.phase, 'resolved':i.phase==-1, 'waiting':i.phase==0}">
                 <div class='column col-title is-three-fifths clickable row-boy'
                     style="position:relative">
 
@@ -220,7 +220,7 @@
             </div>
 
             <div class='column columns is-mobile is-gapless fancy is-12 lobby-room-container'
-                *ngFor='let i of rooms' [ngClass]="{'active':i.active, 'resolved':i.active==null, 'waiting':i.active==false}">
+                *ngFor='let i of rooms' [ngClass]="{'active':i.phase, 'resolved':i.phase==-1, 'waiting':i.phase==0}">
                 <div class='column col-title is-three-fifths clickable row-boy'
                     style="position:relative">
 

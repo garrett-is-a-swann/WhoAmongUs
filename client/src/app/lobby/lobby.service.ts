@@ -80,6 +80,5 @@ export class LobbyService {
         })
     }
 
-}
-class Players{
+
 }

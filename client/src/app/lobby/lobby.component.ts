@@ -81,7 +81,6 @@ export class LobbyComponent implements OnInit {
 
     joinSession(id:number, password:string, error_field = null) {
         this.lobby.joinLobby(id, password).then(res => {
-            console.log(res)
             if( res.success ) {
                 this.rooms.filter(room => room.id == id)[0].enrolled=true;
                 this.rooms.filter(room => room.id == id)[0].players++;
@@ -118,7 +117,7 @@ export class LobbyComponent implements OnInit {
 
     setStyle() {
         for(var i in this.rooms) {
-            if( this.rooms[i].active != false )
+            if( this.rooms[i].phase != 0 )
                 continue;
             this.rooms[i].capacity = this.rooms[i].capacity? this.rooms[i].capacity: 8;
             var style_ratio:number = (parseInt(i)-(this.rooms[i].capacity/2)) / (this.rooms[i].capacity-(this.rooms[i].capacity/2))

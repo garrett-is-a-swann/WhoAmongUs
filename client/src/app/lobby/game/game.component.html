@@ -1,0 +1,172 @@
+<div (click)='stillAlive()'>
+    <div class='columns leader'>
+        <div class='column is-three-quarters card' [ngClass]="{'night':!states.day, 'day':states.day}">
+            <div>
+                <p>{{states.faction}} News:</p>
+                {{states.bulletin}}
+            </div>
+        </div>
+        <div class='column card' [ngClass]="{'night':!states.day, 'day':states.day}">
+            <h1 class='clock'>{{states.day?'Day':'Night'}}: {{states.phase_number}}</h1>
+            <progress class='progress' [ngClass]="{'is-link':!states.day}" [value]='states.percent_finished' max='100'></progress>
+        <button (click)='states.day=!states.day;'></button>
+        </div>
+    </div>
+    
+    <!-- body container -->
+    <div class='columns'>
+
+        <!-- Left bar -->
+        <div class='column is-one-quarter card'>
+            <header class='card-header has-background-grey'>
+                <p class='card-header-title has-text-white-ter has-text-centered'>
+                    Abilities 
+                </p>
+            </header>
+            <div class='card-content'>
+                <div *ngFor="let ability of abilities" class='card fancy' style='margin-bottom:1rem;'>
+                    <header class='card-header has-background-dark'>
+                        <p class='card-header-title has-text-white-ter'>
+                        {{ability.name}}
+                        </p>
+                    </header>
+                    <div class='card-content'>
+                        {{ability.text}}
+                    </div>
+                    <footer class='card-footer'>
+                        <div class='card-footer-item'>
+                            <button class='button'
+                                [ngClass]="{'is-success':ability.locked, 'is-info':!ability.locked}" 
+                                (click)='chamberAbility(ability)'>{{ability.locked || 'Select Target'}}</button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle body -->
+        <div class='column is-two-quarters card'>
+                <div class="tabs is-boxed is-fullwidth">
+                    <ul>
+                        <li [ngClass]="{'is-active':allchat.visible||allchat.visible==undefined}">
+                            <a (click)='allchat.visible=true;voting.visible=false'>
+                                <span class="icon"><i class="fas fa-comments has-text-info" aria-hidden="true"></i></span>
+                                <span>Chat</span>
+                            </a>
+                        </li>
+                        <li [ngClass]="{'is-active':voting.visible}">
+                            <a (click)='allchat.visible=false;voting.visible=true;'>
+                                <span class="icon"><i class="fas fa-check-square has-text-danger" aria-hidden="true"></i></span>
+                                <span>Voting</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            <div class='card-content'>
+                <app-socket #allchat class='socket-container'
+                    [ngClass]="{'is-visible':allchat.visible||allchat.visible==undefined}"
+                    [socket]='socket' [room]='router.url'>
+                </app-socket>
+                <div #voting class='voting-container' [ngClass]="{'is-visible':voting.visible}">
+                    <div *ngFor='let player of players' class='columns'>
+                        <div class='column is-one-fifth'>
+                            <a class='button is-rounded'
+                                [ngClass]="{'is-danger':my_vote==player.first_name}"
+                                (click)='vote(player)'
+                                >{{player.first_name}}
+                            </a>
+                        </div>
+                        <div class='column'>
+                            <progress #voting_progress class="progress is-danger" [value]="votes(player)" max="100">90%</progress>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Bar -->
+        <div class='column is-one-quarter card'>
+			<aside class="menu component-container">
+				<p class="menu-label">Players</p>
+				<ul class="menu-list">
+					<li *ngFor='let player of players'
+                            style='text-align:left'
+                        >
+                        <div *ngIf='ability_chamber != null'
+                            class='back-cancel has-background-primary has-text-centered has-text-dark is-size-4'
+                            (click)='selectPlayer(null)'>
+                            <p>C</p><p>A</p><p>N</p><p>C</p><p>E</p><p>L</p>
+                        </div>
+
+                        <div *ngIf='ability_chamber != null && (player.first_name == states.first_name && ability_chamber.self)'
+                            class='back-drop'
+                            (click)='fireAbility()'>
+                        </div>
+						<button class='button player-pane is-fullwidth' [ngClass]="{
+								'has-text-success':player.status=='here',
+								'has-text-warning':player.status=='afk',
+								'has-text-grey-lighter':player.status=='mia',
+                                'has-background-black-ter':player.status =='dead',
+								'is-a-me':player.first_name == states.first_name}"
+                            (click)="selectPlayer(player)">
+                            {{player.status}}
+							<i class="fas fa-circle" style='color:inherit;' ></i> 
+                            <span style='color:black!important;'>{{player.first_name}} {{player.last_name}}</span>
+
+
+						</button>
+                        <div *ngIf='ability_chamber != null && (player.first_name == states.first_name && !ability_chamber.self)' 
+                            class='back-drop'
+                            (click)='fireAbility()'>
+                        </div>
+
+					</li>
+				</ul>
+			</aside>
+        </div>
+    </div>
+</div>
+
+<div id='footer' style='pointer-events:none;'>
+    <div class='columns'>
+        <div class='column'>
+        </div>
+
+        <div *ngFor='let chat of chats' class='column is-one-quarter'>
+            <div class='is-fullwidth one-one-chat' style='pointer-events:painted;'
+              [ngClass]="{'popup-box':chat.toggle}">
+                
+                <div class='fancy'
+                  [ngStyle]="{'width':chat.toggle?'unset':'23%'}"
+                  [ngClass]="{'has-background-light':!chat.toggle, 'has-background-primary':chat.toggle, 'anchor':!chat.toggle}"
+                  (click)='chat.toggle=!chat.toggle'>
+                    <a style='padding-left:.75rem;' [ngClass]="{
+                      'has-text-success':chat.status=='here',
+                      'has-text-warning':chat.status=='afk',
+                      'has-text-grey-lighter':chat.status=='mia',
+                      'is-a-me':chat.first_name == states.first_name}">
+                        <i class="fas fa-circle" style='color:inherit;' ></i> 
+                        <span style='color:black!important;'>{{chat.first_name}} {{chat.last_name}}</span>
+
+                    </a>
+                    <a class='x-boy'
+                        (click)='closeChat(chat)'> 
+                        <i class='fas fa-times has-text-danger'></i>
+                        <div style='padding-right:1.25rem;'></div>
+                    </a>
+                </div>
+
+                <div *ngIf='chat.toggle' class='popup-socket has-background-light'>
+                    <app-socket #allchat class='socket-container'
+                        [ngClass]="{'is-visible':allchat.visible||allchat.visible==undefined}"
+                        [socket]='socket' [room]='router.url' [me]='states.first_name'
+                        [recipient]="chat.first_name">
+                    </app-socket>
+                </div>
+            </div>
+
+        </div>
+        <div style='padding:.75rem;'></div>
+         
+    </div>
+</div>
