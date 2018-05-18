@@ -180,12 +180,6 @@ export class GameComponent implements OnInit {
                 console.log('right here', this.votes(player))
                
             }
-
-        /*
-            var player = this.getPlayer(payload.vote)
-            player.votes = player.votes+1 || 1;
-            console.log(payload)
-         */
         });
 
 
@@ -198,6 +192,12 @@ export class GameComponent implements OnInit {
             this.states.start = new Date(payload.start);
             this.states.finish = new Date(payload.finish);
             this.states.phase_number = payload.phase;
+            if( payload.day != this.states.day) {
+                for(var i=0; i<this.players.length; i++) {
+                    this.players[i].votes = 0;
+                    this.my_vote = null;
+                }
+            }
             this.states.day = payload.day;
 
             this.states.clock = setInterval(() => {

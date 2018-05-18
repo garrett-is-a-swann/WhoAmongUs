@@ -358,7 +358,7 @@ module.exports = {
                 UPDATE wau.lobbyuser
                 set ioid = $3
                 WHERE lid = $1 AND uid = $2
-                RETURNING first_name
+                RETURNING first_name;
                 `, [lid, uid, ioid], (err, resp) => {
                     if(err) {
                         console.log('Error in query: register Lobby IO Id.');

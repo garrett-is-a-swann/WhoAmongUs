@@ -27,7 +27,7 @@ function nameLookup(lid, io) {
             if(!res.rows.length) {
                 console.log('REFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGEREFRESH THE PAGE')
             }
-            console.log(res.rows)
+            console.log('here', res.rows)
             resolve({first_name:res.rows[0].first_name, last_name:res.rows[0].last_name});
         })
     })
@@ -102,7 +102,7 @@ function init(io) {
 
         socket.on('get bulletin', async (to) => {
             var player = await nameLookup(getlid(to), socket.id)
-            console.log('GET BULL', player)
+            console.log('GET BULL',getlid(to), player)
             db.query(`
                 SELECT role, faction, first_name
                 FROM wau.lobbyuser
@@ -136,7 +136,7 @@ function init(io) {
                 where lid = $1 and first_name = $2
                 `,[getlid(to), player_from.first_name], async (err, resp) => {
 
-                    console.log(resp.rows[0].alive)
+                console.log(resp.rows[0].alive)
                 if(resp.rows[0].alive){
                     payload.from = player_from.first_name;
 
@@ -156,6 +156,20 @@ function init(io) {
         socket.on('ask room status', async (to) => {
             console.log("\tSomeone is asking for everyone's memes", to)
             socket.broadcast.to(to).emit('ask client status', to);
+
+
+            db.query(`
+                SELECT first_name, case when alive then 'mia' else 'dead' END as status
+                FROM wau.lobbyuser
+                WHERE lid = $1
+                `,[getlid(to)], (err, res) => {
+
+                for(var i=0; i < res.rows.length; i++) {
+                    console.log(res.rows[i])
+                    socket.emit('update client status', res.rows[i])
+                }
+
+            });
 
 
             var payload = await clockFactory(to);
@@ -187,18 +201,28 @@ function init(io) {
                         )
                     RETURNING *
                     `, [getlid(to)], (err, resp) => {
-                        console.log(resp.rows[0])
-                        db.query(`
-                            update wau.lobby
-                            set phase_started = current_timestamp
-                                ,phase = $3
-                                ,period = $2
-                                where id = $1
-                            `,[getlid(to), payload.day?'night':'day', payload.day?payload.phase:payload.phase+1], async (err, resp) => {
 
-                            console.log('Clock change')
-                            socket.emit('new clock info', await clockFactory(to));
-                        });
+                    if( resp.rows.length ) {
+                        new_status_payload ={
+                            status: 'dead'
+                            ,first_name: resp.rows[0].first_name
+                        }
+                        socket.broadcast.in(to).emit('update client status', new_status_payload); // Broadcast?
+                        socket.emit('update client status', new_status_payload);
+                    }
+
+                    db.query(`
+                        update wau.lobby
+                        set phase_started = current_timestamp
+                            ,phase = $3
+                            ,period = $2
+                            where id = $1
+                        `,[getlid(to), payload.day?'night':'day', payload.day?payload.phase:payload.phase+1], async (err, resp) => {
+
+                        console.log('Clock change')
+                        socket.emit('new clock info', await clockFactory(to));
+                    });
+
                 })
             } else {
                 socket.emit('new clock info', payload);

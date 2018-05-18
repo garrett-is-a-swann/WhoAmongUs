@@ -42,8 +42,8 @@ function init(io) {
             socket.in(to).emit('game start');
         });
 
-        socket.on('chat message', (to,from,payload) => {
-            console.log('chat message to',to);
+        socket.on('chat message', (to, payload) => {
+            console.log('chat message to',to, payload);
             socket.broadcast.to(socket.room).emit('chat message', payload)
             console.log('message: ' + payload.msg);
         });
