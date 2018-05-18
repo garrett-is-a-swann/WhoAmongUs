@@ -8,6 +8,8 @@ import { RegisterFormComponent } from '../register-form/register-form.component'
 import { LoginFormComponent } from '../login-form/login-form.component';
 import { ForOhForComponent } from '../for-oh-for/for-oh-for.component';
 import { LobbyComponent } from '../lobby/lobby.component';
+import { RoomComponent } from '../lobby/room/room.component';
+import { GameComponent } from '../lobby/game/game.component';
 
 import { AuthGuardService } from '../auth-guard.service';
 import { AuthService } from '../auth.service';
@@ -25,7 +27,9 @@ const routes: Routes = [
                 ,children: [
                     { path: '', redirectTo: '/lobby', pathMatch: 'full' },
                     { path: 'lobby', component: LobbyComponent },
-                    { path: 'lobby/:tab', component: LobbyComponent },
+                    { path: 'lobby/:id', component: RoomComponent }
+					// TODO: Check to see if lobby is in session, and redirect
+					,{ path: 'game/:id', component: GameComponent }
                 ]
             }
         ],

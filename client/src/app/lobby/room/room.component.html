@@ -1,0 +1,37 @@
+<section class='section' (click)='stillAlive()'>
+    <nav class='level'>
+    </nav>
+    <div class='columns'>
+        <app-socket [socket]='socket' [room]='room_id' class='column component-container' ></app-socket>
+		<div class='column is-one-fifth'>
+			<aside class="menu component-container">
+				<p class="menu-label">Players</p>
+				<ul class="menu-list">
+					<li *ngFor='let player of players'>
+
+						<a class='player-pane' [ngClass]="{
+								'has-text-success':player.status=='here',
+								'has-text-warning':player.status=='afk',
+								'has-text-grey-lighter':player.status=='mia',
+								'is-a-me':player.name == states.name}">
+							<i class="fas fa-circle" style='color:inherit;' ></i> 
+							<span style='color:black!important;'>{{player.name}}</span>
+
+							<!-- View for lobby host -->
+							<a *ngIf='states.ishost' class='x-boy'>
+								<i class='fas fa-times has-text-danger x-boy' ></i>
+							</a>
+
+						</a>
+
+					</li>
+				</ul>
+			</aside>
+			<div *ngIf='states.ishost'>
+				<a *ngIf='players.length == room_capacity' class='button is-success' style='width:100%;'
+                    (click)='startGame()'>Start</a>
+				<a *ngIf='players.length != room_capacity' class='button is-dark' style='width:100%;'>Start</a>
+			</div>
+		</div>
+    </div>
+</section>

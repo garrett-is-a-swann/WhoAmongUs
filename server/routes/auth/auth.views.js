@@ -7,26 +7,6 @@ const crypto = require('crypto');
 
 const db = require('../../db')
 
-// "Private"
-function hashPass(password) {
-    // generate a salt for pbkdf2
-    return new Promise((resolve, reject) => {
-        crypto.randomBytes(hashconf.saltBytes, (err, salt) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            crypto.pbkdf2(password, salt, hashconf.iterations, hashconf.hashBytes, 'sha512', (err, hash) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve({hash:hash, salt:salt});
-            });
-        });
-    });
-}
-
 function checkRegisterForm(form) {
     return new Promise(async (resolve, reject) => {
         var formCheck = {
@@ -45,18 +25,38 @@ function checkRegisterForm(form) {
 
 // Public
 
+function hashPass(password) { // Probably should be middleware or elseware HEH
+    // generate a salt for pbkdf2
+    return new Promise((resolve, reject) => {
+        crypto.randomBytes(hashconf.saltBytes, (err, salt) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            crypto.pbkdf2(password, salt, hashconf.iterations, hashconf.hashBytes, 'sha512', (err, hash) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({hash:hash.toString('hex'), salt:salt.toString('hex')});
+            });
+        });
+    });
+}
+
+
 function checkUsername(username) {
     return new Promise((resolve, reject)=> {
         if(/^[a-zA-Z0-9._!@$~|-]{4,64}$/.exec(username) == null) {
             resolve({success:false, mode: -1, message:'Error: Improper format for username.'})
         }
-        return db.query('SELECT username FROM wau.user WHERE username = $1', [username], (err, res) => {
+        return db.query('SELECT username, id FROM wau.user WHERE username = $1', [username], (err, res) => {
             if(err) {
                 reject(err);
                 return;
             }
             if(res.rowCount) {
-                const resp = {success: true, mode: 1, message:res.rows[0].username+' is in use.'}
+                const resp = {success: true, mode: 1, message:res.rows[0].username+' is in use.', uid: res.rows[0].id}
                 resolve(resp)
             }
             else {
@@ -116,7 +116,7 @@ function createUser(form) {
         try {
             if( (resp = await checkRegisterForm(form)).success) {
                 var superSecretShhh = await hashPass(form.password)
-                var values = [form.username, superSecretShhh.salt.toString('hex'), superSecretShhh.hash.toString('hex'), form.first_name, form.last_name, form.email]
+                var values = [form.username, superSecretShhh.salt, superSecretShhh.hash, form.first_name, form.last_name, form.email]
                 db.query('INSERT INTO wau.user '
                         +'(username, salt, hash, first_name, last_name, email) '
                         +'values ($1, $2, $3, $4, $5, $6) RETURNING *;',values, (err, res) => {
@@ -124,7 +124,7 @@ function createUser(form) {
                         reject(err)
                     }
                     else {
-                        resolve({success:true, mode: 1, message:'User '+res.rows[0].username+' created!'});
+                        resolve({success:true, mode: 1, id:res.rows[0].id, message:'User '+res.rows[0].username+' created!'});
                 }})
             } else {
                 resolve(resp);
@@ -142,6 +142,7 @@ function getUserHash(username) {
                     +'FROM wau.user '
                     +'WHERE username = $1;', [username], (err, res) => {
                 if(err) {
+                    console.log(err)
                     reject(err)
                 }
                 else {
@@ -149,6 +150,7 @@ function getUserHash(username) {
                 }
             });
         } catch (e) {
+            console.log(e)
             reject(e)
         }
     });
@@ -160,5 +162,6 @@ module.exports = {
     ,checkEmail: checkEmail
     ,createUser: createUser
     ,getUserHash: getUserHash
+    ,hashPass: hashPass
 
 }

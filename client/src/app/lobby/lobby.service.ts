@@ -5,18 +5,18 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class LobbyService {
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+    }
 
-    createLobby(name = '', password = '', rules = '') {
-        return new Promise((resolve, reject) => {
-            this.http.post('/api/lobby/create', {name:name,password:password, rules:rules})
+    createLobby(name, capacity, _public, password, rules) {
+        return new Promise<any>((resolve, reject) => {
+            this.http.post('/api/lobby/create', {name:name,capacity:capacity,public:_public,password:password, rules:rules})
                 .subscribe((data:any) =>{
                     if(data.success) {
 
                         resolve({success:true, message: 'Lobby created.'});
                     }
                     else {
-
                         resolve({success:false, message: data.message});
                     }
                 });
@@ -31,7 +31,49 @@ export class LobbyService {
                         resolve({success:true, json: data.json});
                     }
                     else {
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
 
+
+    getLobbies() {
+        return new Promise<any>((resolve, reject) => {
+            this.http.get('/api/lobby/lobbies')
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
+
+    joinLobby(id:number, password:string = '') {
+        return new Promise<any>((resolve, reject) => {
+            this.http.post('/api/lobby/'+id, {id:id, password:password})
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
+                        resolve({success:false, message: data.message});
+                    }
+                });
+        })
+    }
+
+    leaveLobby(id:number) {
+        return new Promise<any>((resolve, reject) => {
+            this.http.delete('/api/lobby/'+id)
+                .subscribe((data:any) =>{
+                    if(data.success) {
+                        resolve({success:true, json: data.json});
+                    }
+                    else {
                         resolve({success:false, message: data.message});
                     }
                 });

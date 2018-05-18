@@ -1,0 +1,23 @@
+.menu {
+	height:300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	height:300px;
+}
+.is-a-me {
+	background:cadetblue;
+}
+.bd-duo {
+    display:flex;
+}
+.x-boy {
+    display:inline-block;
+}
+.x-boy:hover {
+    color: #555!important;
+}
+
+.component-container {
+    padding-bottom:.2rem;
+}
+

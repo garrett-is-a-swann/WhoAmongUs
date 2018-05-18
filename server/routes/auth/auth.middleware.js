@@ -10,7 +10,7 @@ const views = require('./auth.views')
 
 
 
-// "Private"
+// Public
 
 function verifyPassword(password, hash, salt) {
     return new Promise((resolve, reject) => {
@@ -24,7 +24,6 @@ function verifyPassword(password, hash, salt) {
     });
 }
 
-// Public
 
 function authUser(username, password) {
     return new Promise(async (resolve, reject) => {
@@ -46,7 +45,7 @@ function authUser(username, password) {
             hashbrowns = await views.getUserHash(username);
             verifyPassword(password, hashbrowns.hash, hashbrowns.salt).then(resp => {
                 if(resp) {
-                    resolve(true)
+                    resolve({success:true, uid:username_check.uid})
                 } else {
                     reject({success:false, mode:2, message:'Incorrect password.'})
                 }
@@ -65,13 +64,11 @@ function authUser(username, password) {
 // Middleware
 
 function isAuth_Ware(req, res, next) {
-    console.log(req.WhoAmongUs)
     if(req.WhoAmongUs && req.WhoAmongUs.username) {
-        console.log(req.WhoAmongUs.username, 'is checking their authorization.');
-        console.log('Authenticated.')
+        console.log(req.WhoAmongUs.username, 'is checking their authentication for route',req.path)
         next();
     } else {
-        console.log('Not authenticated.')
+        console.log(req.headers['x-forwarded-for'], 'is not authenticated for route',req.path)
         res.send({success:false, message:'Not authenticated.'});
     }
 }
@@ -81,4 +78,6 @@ module.exports = {
     ,verifyPassword:verifyPassword
     ,authUser:authUser
     ,isAuth:isAuth_Ware
+    ,hashPass:views.hashPass
+    ,verifyPass:verifyPassword
 };
